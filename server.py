@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import socket
-import json
 import modules.handshake as handshake
 import modules.message as message
 from _thread import *
@@ -52,7 +51,7 @@ class EB_Websocket():
 				break
 			else:
 				where, recvData = message.decode(data)
-				self.handlerFunc(where,json.loads(recvData))
+				self.handlerFunc(where, recvData)
 
 def handler(where,data):
 	if where == "start":

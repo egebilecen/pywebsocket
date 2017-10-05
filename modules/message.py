@@ -1,4 +1,5 @@
 import struct
+import json
 
 def decode(data):
     HEADER, = struct.unpack("!H",data[:2])
@@ -16,8 +17,8 @@ def decode(data):
         LEN, = struct.unpack("!H",data[:2])
         data = data[2:]
     elif LEN == 127:
-        LEN, = struct.unpack("!4H",data[:4])
-        data = data[4:]
+        LEN, = struct.unpack("!4H",data[:8])
+        data = data[8:]
 
     print("FIN: {}, RSV1: {}, RSV2: {}, RSV3: {}, OPCODE: {}, MASKED: {}, LEN: {}".format(FIN, RSV1, RSV2, RSV3, OPCODE,
                                                                                           MASKED, LEN))
@@ -32,4 +33,9 @@ def decode(data):
     for i,c in enumerate(data):
         payload += chr(c ^ MASK[i%4])
 
-    return payload.split(",")
+    try:
+        _data = json.loads(payload)
+    except:
+        _data = {"where":"null","data":{}}
+        
+    return (_data["where"], _data["data"])
