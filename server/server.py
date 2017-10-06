@@ -6,6 +6,7 @@ import base64
 import json
 import sys
 from _thread import *
+from random import random
 
 class EB_Websocket():
 	# Constructor
@@ -13,7 +14,7 @@ class EB_Websocket():
 		self.HOST   = ''
 		self.PORT   = 3131
 		self.SERVER = None
-		self.SOCKET_LIST = []
+		self.SOCKET_LIST = {}
 		self.HANDLERS    = handlers
 		self.exception   = True
 		self.debug       = True
@@ -62,17 +63,29 @@ class EB_Websocket():
 
 	# Handler for clients
 	def clientHandler(self, conn, addr):
+		addr = addr + (random(),)
+		socket_id = addr[2]
+		try:
+			_a = self.SOCKET_LIST[socket_id]
+			print("zaten socket var")
+		except:
+			self.SOCKET_LIST[socket_id] = { "conn":conn, "addr":addr }
+
 		while True:
 			data = conn.recv(4096)
 
 			if not data:
 				if self.debug:
 					print('\nA socket has left.',end='\n\n')
+				self.SOCKET_LIST.pop(socket_id)
 				conn.close()
 				break
 			else:
 				where, recvData = self.message_decode(data)
-				self.HANDLERS[where](conn, recvData, {"send":self.send_message,"send_all":None})
+				try:
+					self.HANDLERS[where](conn, recvData, self)
+				except:
+					pass
 
 	# HANDSHAKE METHODS #
 	def create_handshake(self, hs):
@@ -165,6 +178,7 @@ class EB_Websocket():
 
 def start(socket, data, f):
 	print(data)
-	f["send"](socket, "hello world!")
+	f.send_message(socket, "hello world!")
+	print(f.SOCKET_LIST)
 
 server = EB_Websocket({"start":start})
