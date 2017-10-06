@@ -1,22 +1,27 @@
 # -*- coding: utf-8 -*-
+import hashlib
+import struct
 import socket
+import base64
+import json
 import sys
-import modules.handshake as handshake
-import modules.message as message
 from _thread import *
 
 class EB_Websocket():
-	def __init__(self, handlerFunc, autoRun=True):
-		self.HOST = ''
-		self.PORT = 3131
+	# Constructor
+	def __init__(self, handlers, autoRun=True):
+		self.HOST   = ''
+		self.PORT   = 3131
 		self.SERVER = None
-		self.SOCKET_LIST = {}
-		self.handlerFunc = handlerFunc
-		self.debug = False
+		self.SOCKET_LIST = []
+		self.HANDLERS    = handlers
+		self.exception   = True
+		self.debug       = True
 
 		if autoRun == True:
 			self.run_server()
 
+	# SERVER METHODS #
 	def run_server(self):
 		# Create socket
 		self.SERVER = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,17 +45,23 @@ class EB_Websocket():
 
 			if self.debug:
 				print('[?] Sending handshake.', end='\n\n')
-			conn.sendto(handshake.create(data.decode(),self.HOST,self.PORT), (addr[0], addr[1]))
+			conn.send(self.create_handshake(data.decode()))
 
 			start_new_thread(self.clientHandler, (conn, addr,))
 
+	# Close server
 	def close_server(self):
 		self.SERVER.close()
 		if self.debug:
 			print("[?] Server closed.")
 		sys.exit()
 
-	def clientHandler(self,conn,addr):
+	# HANDLER METHODS #
+	def setHandler(self, name, handler):
+		self.HANDLERS[name] = handler
+
+	# Handler for clients
+	def clientHandler(self, conn, addr):
 		while True:
 			data = conn.recv(4096)
 
@@ -60,17 +71,100 @@ class EB_Websocket():
 				conn.close()
 				break
 			else:
-				try:
-					where, recvData = message.decode(data)
-					self.handlerFunc(conn, where, recvData)
-				except:
-					# detected un-masked data
-					conn.close()
-					break
+				where, recvData = self.message_decode(data)
+				self.HANDLERS[where](conn, recvData, {"send":self.send_message,"send_all":None})
 
-def handler(sock, where, data):
-	if where == "start":
-		print(message.encode("hello"))
-		sock.send(message.encode("hello"))
+	# HANDSHAKE METHODS #
+	def create_handshake(self, hs):
+		HANDSHAKE = 'HTTP/1.1 101 Web Socket Protocol Handshake\r\nUpgrade: WebSocket\r\nConnection: Upgrade\r\nWebSocket-Origin: {host}\r\n'\
+			.format(host=self.HOST, port=self.PORT)
+		hsList = hs.split('\r\n')
+		hsBody = hs.split('\r\n\r\n')[1]
+		magic = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
+		key = ''
 
-server = EB_Websocket(handler)
+		for i in hsList:
+			if i.startswith('Sec-WebSocket-Key:'):
+				key = i[19:]
+			else:
+				continue
+		s = hashlib.sha1()
+		s.update((key + magic).encode())
+		h = s.digest()
+		a = base64.b64encode(h)
+		a = a.decode()
+		HANDSHAKE += 'Sec-WebSocket-Accept: ' + str(a) + '\r\n\r\n'
+		return HANDSHAKE.encode()
+
+	# MESSAGE METHODS #
+	# socket -> (conn, addr)
+	def send_message(self, conn, data):
+		conn.send(self.message_encode(data))
+
+	def message_decode(self, data):
+		HEADER, = struct.unpack("!H", data[:2])
+		data = data[2:]
+
+		FIN    = (HEADER >> 15) & 0x01
+		RSV1   = (HEADER >> 14) & 0x01
+		RSV2   = (HEADER >> 13) & 0x01
+		RSV3   = (HEADER >> 12) & 0x01
+		OPCODE = (HEADER >>  8) & 0x0F
+		MASKED = (HEADER >>  7) & 0x01
+		LEN    = (HEADER >>  0) & 0x7F
+
+		if LEN == 126:
+			LEN, = struct.unpack("!H", data[:2])
+			data = data[2:]
+		elif LEN == 127:
+			LEN, = struct.unpack("!4H", data[:8])
+			data = data[8:]
+
+		if MASKED:
+			MASK = struct.unpack("4B", data[:4])
+			data = data[4:]
+		else:
+			return False
+
+		payload = ""
+		for i, c in enumerate(data):
+			payload += chr(c ^ MASK[i % 4])
+
+		try:
+			_data = json.loads(payload)
+		except:
+			_data = {"where": "null", "data": {}}
+
+		return (_data["where"], _data["data"])
+
+	def message_encode(self, data):
+		FIN    = 0x80
+		OPCODE = 0x01
+		EXT_16 = 0x7E
+		EXT_64 = 0x7F
+
+		HEADER      = bytearray()
+		PAYLOAD     = data.encode()
+		PAYLOAD_LEN = len(data)
+
+		if PAYLOAD_LEN <= 125:
+			HEADER.append(FIN | OPCODE)
+			HEADER.append(PAYLOAD_LEN)
+		elif PAYLOAD_LEN <= 65535:
+			HEADER.append(FIN | OPCODE)
+			HEADER.append(EXT_16)
+			HEADER.extend(struct.pack(">H", PAYLOAD_LEN))
+		elif PAYLOAD_LEN < 18446744073709551616:
+			HEADER.append(FIN | OPCODE)
+			HEADER.append(EXT_64)
+			HEADER.extend(struct.pack(">Q", PAYLOAD_LEN))
+		else:
+			return False
+
+		return HEADER + PAYLOAD
+
+def start(socket, data, f):
+	print(data)
+	f["send"](socket, "hello world!")
+
+server = EB_Websocket({"start":start})
