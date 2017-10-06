@@ -54,10 +54,12 @@ class EB_Websocket():
 				break
 			else:
 				where, recvData = message.decode(data)
+				# print("\n\n-> ",recvData,"\n\n",sep="")
 				self.handlerFunc(conn, where, recvData)
 
 def handler(sock, where, data):
 	if where == "start":
-		print(message.encode("anan"))
+		print(message.encode("merhaba"))
+		sock.send(message.encode("merhaba"))
 
 server = EB_Websocket(handler)
