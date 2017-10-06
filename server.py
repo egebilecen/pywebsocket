@@ -60,9 +60,13 @@ class EB_Websocket():
 				conn.close()
 				break
 			else:
-				where, recvData = message.decode(data)
-				# print("\n\n-> ",recvData,"\n\n",sep="")
-				self.handlerFunc(conn, where, recvData)
+				try:
+					where, recvData = message.decode(data)
+					self.handlerFunc(conn, where, recvData)
+				except:
+					# detected un-masked data
+					conn.close()
+					break
 
 def handler(sock, where, data):
 	if where == "start":
