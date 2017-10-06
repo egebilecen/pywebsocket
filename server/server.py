@@ -45,7 +45,7 @@ class EB_Websocket():
 			data = conn.recv(4096)
 
 			if self.debug:
-				print('[?] Sending handshake.', end='\n\n')
+				print('[?] Creating handshake.', end='\n\n')
 			conn.send(self.create_handshake(data.decode()))
 
 			start_new_thread(self.clientHandler, (conn, addr,))
@@ -65,9 +65,9 @@ class EB_Websocket():
 	def clientHandler(self, conn, addr):
 		addr = addr + (random(),)
 		socket_id = addr[2]
+
 		try:
 			_a = self.SOCKET_LIST[socket_id]
-			print("zaten socket var")
 		except:
 			self.SOCKET_LIST[socket_id] = { "conn":conn, "addr":addr }
 
@@ -110,7 +110,10 @@ class EB_Websocket():
 		return HANDSHAKE.encode()
 
 	# MESSAGE METHODS #
-	# socket -> (conn, addr)
+	def emit(self, conn, where, data):
+		re_data = json.dumps({"where":where,"data":data})
+		self.send_message(conn, re_data)
+
 	def send_message(self, conn, data):
 		conn.send(self.message_encode(data))
 
@@ -177,8 +180,6 @@ class EB_Websocket():
 		return HEADER + PAYLOAD
 
 def start(socket, data, f):
-	print(data)
-	f.send_message(socket, "hello world!")
-	print(f.SOCKET_LIST)
+	f.emit(socket, "welcome", {"deneme":123})
 
 server = EB_Websocket({"start":start})
