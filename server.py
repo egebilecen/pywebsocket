@@ -12,6 +12,7 @@ class EB_Websocket():
 		self.SERVER = None
 		self.SOCKET_LIST = {}
 		self.handlerFunc = handlerFunc
+		self.debug = False
 
 		if autoRun == True:
 			self.run_server()
@@ -22,26 +23,31 @@ class EB_Websocket():
 
 		# Open Server
 		self.SERVER.bind((self.HOST, self.PORT))
-		print('[?] Server opened.', end='\n\n')
+		if self.debug:
+			print('[?] Server opened.', end='\n\n')
 
 		# Listen connections
 		self.SERVER.listen()
-		print('[?] Server waiting for connections.', end='\n\n')
+		if self.debug:
+			print('[?] Server waiting for connections.', end='\n\n')
 
 		while True:
 			conn, addr = self.SERVER.accept()
-			print('[?] New connection -', addr, end='\n\n')
+			if self.debug:
+				print('[?] New connection -', addr, end='\n\n')
 
 			data = conn.recv(4096)
 
-			print('[?] Sending handshake.', end='\n\n')
+			if self.debug:
+				print('[?] Sending handshake.', end='\n\n')
 			conn.sendto(handshake.create(data.decode(),self.HOST,self.PORT), (addr[0], addr[1]))
 
 			start_new_thread(self.clientHandler, (conn, addr,))
 
 	def close_server(self):
 		self.SERVER.close()
-		print("[?] Server closed.")
+		if self.debug:
+			print("[?] Server closed.")
 		sys.exit()
 
 	def clientHandler(self,conn,addr):
@@ -49,7 +55,8 @@ class EB_Websocket():
 			data = conn.recv(4096)
 
 			if not data:
-				print('\nA socket has left.',end='\n\n')
+				if self.debug:
+					print('\nA socket has left.',end='\n\n')
 				conn.close()
 				break
 			else:
@@ -59,7 +66,7 @@ class EB_Websocket():
 
 def handler(sock, where, data):
 	if where == "start":
-		print(message.encode("merhaba"))
-		sock.send(message.encode("merhaba"))
+		print(message.encode("hello"))
+		sock.send(message.encode("hello"))
 
 server = EB_Websocket(handler)

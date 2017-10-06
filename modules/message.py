@@ -1,6 +1,5 @@
 import struct
 import json
-import math
 
 def decode(data):
     HEADER, = struct.unpack("!H",data[:2])
@@ -21,8 +20,8 @@ def decode(data):
         LEN, = struct.unpack("!4H",data[:8])
         data = data[8:]
 
-    print("[?] Message from client.\n","FIN: {}, RSV1: {}, RSV2: {}, RSV3: {}, OPCODE: {}, MASKED: {}, LEN: {}"
-          .format(FIN, RSV1, RSV2, RSV3, OPCODE, MASKED, LEN), sep="",end="\n\n")
+    # print("[?] Message from client.\n","FIN: {}, RSV1: {}, RSV2: {}, RSV3: {}, OPCODE: {}, MASKED: {}, LEN: {}"
+    #       .format(FIN, RSV1, RSV2, RSV3, OPCODE, MASKED, LEN), sep="",end="\n\n")
 
     if MASKED:
         MASK = struct.unpack("4B", data[:4])
@@ -39,7 +38,7 @@ def decode(data):
     except:
         _data = {"where":"null","data":{}}
 
-    print("Message: ",payload,end="\n\n")
+    # print("Message: ",payload,end="\n\n")
 
     return (_data["where"], _data["data"])
 
@@ -69,10 +68,10 @@ def encode(data):
         EXT_LEN = bin(data_length)[2:].rjust(7+64,"0")
 
     ALL     = FIN+RSV1+RSV2+RSV3+OPCODE+MASK+LEN+EXT_LEN
-    ENCODED = "".join([chr(int(ALL[i*8:i*8+8],2)) for i in range(LOOP)])
-    DATA    = data
+    ENCODED = b"".join([chr(int(ALL[i*8:i*8+8],2)).encode() for i in range(LOOP)])
+    DATA    = data.encode()
 
-    print("[?] Message from server.\n","LEN: {}, EXT_LEN: {}, ENCODED: {}, ENCODED(repr): {}"
-          .format(LEN,EXT_LEN,ENCODED,repr(ENCODED)),sep="",end="\n\n")
+    # print("[?] Message from server.\n","LEN: {}, EXT_LEN: {}, ENCODED: {}, ENCODED(repr): {}"
+    #       .format(LEN,EXT_LEN,ENCODED,repr(ENCODED)),sep="",end="\n\n")
 
-    return (ENCODED+DATA).encode()
+    return ENCODED+DATA
