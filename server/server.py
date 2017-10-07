@@ -126,7 +126,8 @@ class EB_Websocket():
 
 	def emit_all(self, where, data):
 		re_data = json.dumps({"where":where,"data":data})
-		for conn,key in enumerate(self.SOCKET_LIST):
+		for i in self.SOCKET_LIST:
+			conn = self.SOCKET_LIST[i]["conn"]
 			self.send_message(conn, re_data)	
 
 	def send_message(self, conn, data):
