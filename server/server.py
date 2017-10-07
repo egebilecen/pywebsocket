@@ -62,13 +62,13 @@ class EB_Websocket():
 
 	# Handler for clients
 	def clientHandler(self, conn, addr):
-		addr = addr + (random(),)
-		socket_id = addr[2]
-
+		private_data = { "socket_id" : random() }
+		socket_id    = private_data["socket_id"]
+		
 		try:
 			_a = self.SOCKET_LIST[socket_id]
 		except:
-			self.SOCKET_LIST[socket_id] = { "conn":conn, "addr":addr }
+			self.SOCKET_LIST[socket_id] = { "conn":conn, "addr":addr, "private_data":private_data }
 
 		while True:
 			data = conn.recv(4096)
@@ -88,7 +88,7 @@ class EB_Websocket():
 					break
 				else:
 					try:
-						self.HANDLERS[where](conn, recvData, self)
+						self.HANDLERS[where](conn, recvData, self, private_data)
 					except:
 						# couldn't find handler
 						pass
@@ -119,6 +119,11 @@ class EB_Websocket():
 	def emit(self, conn, where, data):
 		re_data = json.dumps({"where":where,"data":data})
 		self.send_message(conn, re_data)
+
+	def emit_all(self, where, data):
+		re_data = json.dumps({"where":where,"data":data})
+		for conn,key in enumerate(self.SOCKET_LIST):
+			self.send_message(conn, re_data)	
 
 	def send_message(self, conn, data):
 		send_data = self.message_encode(data)
