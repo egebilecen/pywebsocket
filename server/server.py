@@ -6,6 +6,8 @@ import base64
 import json
 from _thread import *
 from random import random
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE, SIG_DFL)
 
 class EB_Websocket():
 	# Constructor
@@ -94,13 +96,12 @@ class EB_Websocket():
 					conn.close()
 					break
 				else:
-					self.HANDLERS[where](conn, recvData, self, private_data)
-					# try:
-					# 	self.HANDLERS[where](conn, recvData, self, private_data)
-					# except Exception as err:
-					# 	# couldn't find handler or an error occured in handler
-					# 	if self.exception:
-					# 		print(err)
+					try:
+						self.HANDLERS[where](conn, recvData, self, private_data)
+					except Exception as err:
+						# couldn't find handler or an error occured in handler
+						if self.exception:
+							print(err)
 
 	# HANDSHAKE METHODS #
 	def create_handshake(self, hs):
