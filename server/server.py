@@ -10,9 +10,9 @@ from random import random
 
 class EB_Websocket():
 	# Constructor
-	def __init__(self, handlers, autoRun=True):
-		self.HOST   = ''
-		self.PORT   = 3131
+	def __init__(self, addr=('',3131), handlers={}, autoRun=True):
+		self.HOST   = addr[0]
+		self.PORT   = addr[1]
 		self.SERVER = None
 		self.SOCKET_LIST = {}
 		self.HANDLERS    = handlers
@@ -182,4 +182,4 @@ class EB_Websocket():
 def start(socket, data, f):
 	f.emit(socket, "welcome", {"deneme":123})
 
-server = EB_Websocket({"start":start})
+server = EB_Websocket(("",3131),{"start":start})
