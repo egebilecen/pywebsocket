@@ -80,7 +80,6 @@ class EB_Websocket():
 				conn.close()
 				break
 			else:
-				print("[!] "+repr(data)+"\n")
 				where, recvData = self.message_decode(data)
 
 				if where == False or recvData == False:
