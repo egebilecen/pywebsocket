@@ -1,9 +1,12 @@
-function EB_Websocket(host,port){
+function EB_Websocket(host,port, debug){
     if(typeof host === "undefined" || typeof port === "undefined")
         throw new DOMException("Host or port param is undefined.");
+    if(typeof debug !== "boolean")
+        debug = false;
 
     var EB_Websocket = {
         socket      : null,
+        debug       : debug,
         handlers    : {},
         onMessage : function(obj){
             var data;
@@ -16,7 +19,7 @@ function EB_Websocket(host,port){
             if(EB_Websocket.handlers.hasOwnProperty(data.where))
                 EB_Websocket.handlers[data.where](data.data);
             else
-                console.error("Couldn't find handler for \""+data.where+"\".");
+                if(EB_Websocket.debug) console.error("Couldn't find handler for \""+data.where+"\".");
         },
         close : function(){
             EB_Websocket.socket.close();
@@ -65,6 +68,9 @@ function EB_Websocket(host,port){
         setErrorEvent : EB_Websocket.setErrorEvent,
         setDisconnectEvent : EB_Websocket.setDisconnectEvent,
         on : EB_Websocket.on,
-        emit : EB_Websocket.emit
+        emit : EB_Websocket.emit,
+        getStatus : function(){
+            return EB_Websocket.status;
+        }
     };
 }
