@@ -3,7 +3,7 @@ function EB_Websocket(host,port,auto_run){
         throw new DOMException("Host or port param is undefined.");
     if(typeof auto_run !== "boolean")
         auto_run = false;
-    
+
     var EB_Websocket = {
         socket    : null,
         handlers  : {},
@@ -18,6 +18,8 @@ function EB_Websocket(host,port,auto_run){
             }
             if(EB_Websocket.handlers.hasOwnProperty(data.where))
                 EB_Websocket.handlers[data.where](data.data);
+            else
+                console.error("Couldn't find handler for \""+data.where+"\".");
         },
         onClose   : null,
         onError   : null,
@@ -44,7 +46,8 @@ function EB_Websocket(host,port,auto_run){
         run : function(){
             EB_Websocket.socket = new WebSocket("ws://"+host+":"+port);
             EB_Websocket.socket.onmessage = EB_Websocket.onMessage;
-        }
+        },
+        status : null
     };
     if(auto_run) EB_Websocket.run();
     return EB_Websocket;
