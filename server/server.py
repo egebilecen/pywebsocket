@@ -43,11 +43,7 @@ class EB_Websocket():
 				print('[?] New connection -', addr, end='\n\n')
 
 			data = conn.recv(4096)
-
-			if self.debug:
-				print('[?] Creating handshake.', end='\n\n')
 			conn.send(self.create_handshake(data.decode()))
-
 			start_new_thread(self.clientHandler, (conn, addr,))
 
 	# Close server
