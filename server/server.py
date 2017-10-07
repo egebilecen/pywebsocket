@@ -10,7 +10,7 @@ from random import random
 
 class EB_Websocket():
 	# Constructor
-	def __init__(self, addr=('',3131), handlers={}, autoRun=True):
+	def __init__(self, addr=('',3131), handlers={}, autoRun=True, init=None):
 		self.HOST   = addr[0]
 		self.PORT   = addr[1]
 		self.SERVER = None
@@ -18,6 +18,9 @@ class EB_Websocket():
 		self.HANDLERS    = handlers
 		self.exception   = True
 		self.debug       = True
+
+		if callable(init):
+			init(self)
 
 		if autoRun == True:
 			self.run_server()
@@ -43,7 +46,11 @@ class EB_Websocket():
 				print('[?] New connection -', addr, end='\n\n')
 
 			data = conn.recv(4096)
+
+			if self.debug:
+				print('[?] Creating handshake.', end='\n\n')
 			conn.send(self.create_handshake(data.decode()))
+
 			start_new_thread(self.clientHandler, (conn, addr,))
 
 	# Close server
