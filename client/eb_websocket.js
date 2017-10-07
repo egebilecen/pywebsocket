@@ -5,7 +5,6 @@ function EB_Websocket(host,port){
     var EB_Websocket = {
         socket      : null,
         handlers    : {},
-        storedEmits : [],
         onMessage : function(obj){
             var data;
             try{
@@ -44,25 +43,15 @@ function EB_Websocket(host,port){
             EB_Websocket.handlers[name] = func;
         },
         emit : function(name, data){
-            try {
-                var re_data = JSON.stringify({where: name, data: data});
-                EB_Websocket.socket.send(re_data);
-            }
-            catch(err){
-                EB_Websocket.storedEmits.push({name:name, data:data})
-            }
+            var re_data = JSON.stringify({where: name, data: data});
+            EB_Websocket.socket.send(re_data);
         },
         run : function(){
             EB_Websocket.socket = new WebSocket("ws://"+host+":"+port);
-            EB_Websocket.socket.onopen    = function(){
-                if( EB_Websocket.storedEmits.length > 0 )
-                {
-                    for( var i=0; i < EB_Websocket.storedEmits.length; i++ )
-                    {
-                        var emitObj = EB_Websocket.storedEmits[i];
-                        EB_Websocket.emit(emitObj.name, emitObj.data);
-                    }
-                }
+            EB_Websocket.socket.onopen = function(){
+                var event = document.createEvent("Event");
+                event.initEvent("EB_Websocket_Connection");
+                document.dispatchEvent(event);
                 EB_Websocket.status = 1;
             };
             EB_Websocket.socket.onmessage = EB_Websocket.onMessage;
