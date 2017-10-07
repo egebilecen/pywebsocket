@@ -4,7 +4,6 @@ import struct
 import socket
 import base64
 import json
-import sys
 from _thread import *
 from random import random
 
@@ -21,6 +20,7 @@ class EB_Websocket():
 		self.HANDLERS    = handlers
 		self.exception   = True
 		self.debug       = True
+		self.isClosed    = False
 
 		if callable(init):
 			init(self)
@@ -55,9 +55,9 @@ class EB_Websocket():
 	# Close server
 	def close_server(self):
 		self.SERVER.close()
+		self.isClosed = True
 		if self.debug:
 			print("[?] Server closed.")
-		sys.exit()
 
 	# HANDLER METHODS #
 	def setHandler(self, name, handler):
@@ -74,6 +74,9 @@ class EB_Websocket():
 			self.SOCKET_LIST[socket_id] = { "conn":conn, "addr":addr, "private_data":private_data }
 
 		while True:
+			if(self.isClosed):
+				exit_thread()
+
 			data = conn.recv(4096)
 
 			if not data:
@@ -87,15 +90,17 @@ class EB_Websocket():
 
 				if where == False or recvData == False:
 					# detected un-masked data or closing frame
+					self.SOCKET_LIST.pop(socket_id)
 					conn.close()
 					break
 				else:
-					try:
-						self.HANDLERS[where](conn, recvData, self, private_data)
-					except Exception as err:
-						# couldn't find handler or an error occured in handler
-						if self.exception:
-							print(err)
+					self.HANDLERS[where](conn, recvData, self, private_data)
+					# try:
+					# 	self.HANDLERS[where](conn, recvData, self, private_data)
+					# except Exception as err:
+					# 	# couldn't find handler or an error occured in handler
+					# 	if self.exception:
+					# 		print(err)
 
 	# HANDSHAKE METHODS #
 	def create_handshake(self, hs):
