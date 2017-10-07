@@ -6,7 +6,6 @@ function EB_Websocket(host,port){
         socket      : null,
         handlers    : {},
         storedEmits : [],
-        onOpen    : null,
         onMessage : function(obj){
             var data;
             try{
@@ -20,9 +19,7 @@ function EB_Websocket(host,port){
             else
                 console.error("Couldn't find handler for \""+data.where+"\".");
         },
-        onClose   : null,
-        onError   : null,
-        close     : function(){
+        close : function(){
             EB_Websocket.socket.close();
             EB_Websocket.socket = null;
             EB_Websocket.status = 0;
