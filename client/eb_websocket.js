@@ -1,8 +1,6 @@
-function EB_Websocket(host,port,auto_run){
+function EB_Websocket(host,port){
     if(typeof host === "undefined" || typeof port === "undefined")
         throw new DOMException("Host or port param is undefined.");
-    if(typeof auto_run !== "boolean")
-        auto_run = false;
 
     var EB_Websocket = {
         socket      : null,
@@ -24,14 +22,11 @@ function EB_Websocket(host,port,auto_run){
         },
         onClose   : null,
         onError   : null,
-        close     : function(autoNull){
-            if(typeof autoNull !== "boolean")
-                autoNull = true;
-
+        close     : function(){
             EB_Websocket.socket.close();
-            if(autoNull)
-                EB_Websocket.socket = null;
+            EB_Websocket.socket = null;
             EB_Websocket.status = 0;
+            EB_Websocket.onClose();
         },
         setErrorEvent : function(func){
             EB_Websocket.socket.onerror = function(){
@@ -77,13 +72,13 @@ function EB_Websocket(host,port,auto_run){
         },
         status : 0
     };
-    if(auto_run) EB_Websocket.run();
+    EB_Websocket.run();
+
     return {
         close : EB_Websocket.close,
         setErrorEvent : EB_Websocket.setErrorEvent,
         setDisconnectEvent : EB_Websocket.setDisconnectEvent,
         on : EB_Websocket.on,
-        emit : EB_Websocket.emit,
-        run : EB_Websocket.run
+        emit : EB_Websocket.emit
     };
 }
