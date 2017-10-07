@@ -5,8 +5,9 @@ function EB_Websocket(host,port,auto_run){
         auto_run = false;
 
     var EB_Websocket = {
-        socket    : null,
-        handlers  : {},
+        socket      : null,
+        handlers    : {},
+        storedEmits : [],
         onOpen    : null,
         onMessage : function(obj){
             var data;
@@ -27,27 +28,43 @@ function EB_Websocket(host,port,auto_run){
             EB_Websocket.socket.close();
             EB_Websocket.socket = null;
         },
-        setOpenEvent : function(func){
-            EB_Websocket.socket.onopen = func;
-        },
-        setCloseEvent : function(func){
-            EB_Websocket.socket.onclose = func;
-        },
         setErrorEvent : function(func){
             EB_Websocket.socket.onerror = func;
+        },
+        setDisconnectEvent : function(func){
+            EB_Websocket.socket.onclose = function(){
+                if(EB_Websocket.status === 1)
+                    func();
+            };
         },
         on : function(name, func){
             EB_Websocket.handlers[name] = func;
         },
         emit : function(name, data){
-            var re_data = JSON.stringify({where:name,data:data});
-            EB_Websocket.socket.send(re_data);
+            try {
+                var re_data = JSON.stringify({where: name, data: data});
+                EB_Websocket.socket.send(re_data);
+            }
+            catch(err){
+                EB_Websocket.storedEmits.push({name:name, data:data})
+            }
         },
         run : function(){
             EB_Websocket.socket = new WebSocket("ws://"+host+":"+port);
+            EB_Websocket.socket.onopen    = function(){
+                if( EB_Websocket.storedEmits.length > 0 )
+                {
+                    for( var i=0; i < EB_Websocket.storedEmits.length; i++ )
+                    {
+                        var emitObj = EB_Websocket.storedEmits[i];
+                        EB_Websocket.emit(emitObj.name, emitObj.data);
+                    }
+                }
+                EB_Websocket.status = 1;
+            };
             EB_Websocket.socket.onmessage = EB_Websocket.onMessage;
         },
-        status : null
+        status : 0
     };
     if(auto_run) EB_Websocket.run();
     return EB_Websocket;
