@@ -10,7 +10,10 @@ from random import random
 
 class EB_Websocket():
 	# Constructor
-	def __init__(self, addr=('',3131), handlers={}, autoRun=True, init=None):
+	def __init__(self, addr=('',3131), handlers=None, autoRun=True, init=None):
+		if handlers is None:
+			handlers = {}
+
 		self.HOST   = addr[0]
 		self.PORT   = addr[1]
 		self.SERVER = None
@@ -64,7 +67,7 @@ class EB_Websocket():
 	def clientHandler(self, conn, addr):
 		private_data = { "socket_id" : random() }
 		socket_id    = private_data["socket_id"]
-		
+
 		try:
 			_a = self.SOCKET_LIST[socket_id]
 		except:
@@ -89,9 +92,10 @@ class EB_Websocket():
 				else:
 					try:
 						self.HANDLERS[where](conn, recvData, self, private_data)
-					except:
-						# couldn't find handler
-						pass
+					except Exception as err:
+						# couldn't find handler or an error occured in handler
+						if self.exception:
+							print(err)
 
 	# HANDSHAKE METHODS #
 	def create_handshake(self, hs):
@@ -123,6 +127,7 @@ class EB_Websocket():
 	def emit_all(self, where, data):
 		re_data = json.dumps({"where":where,"data":data})
 		for conn,key in enumerate(self.SOCKET_LIST):
+			print(conn)
 			self.send_message(conn, re_data)	
 
 	def send_message(self, conn, data):
