@@ -24,17 +24,28 @@ function EB_Websocket(host,port,auto_run){
         },
         onClose   : null,
         onError   : null,
-        close     : function(){
+        close     : function(autoNull){
+            if(typeof autoNull !== "boolean")
+                autoNull = true;
+
             EB_Websocket.socket.close();
-            EB_Websocket.socket = null;
+            if(autoNull)
+                EB_Websocket.socket = null;
+            EB_Websocket.status = 0;
         },
         setErrorEvent : function(func){
-            EB_Websocket.socket.onerror = func;
+            EB_Websocket.socket.onerror = function(){
+                func();
+                EB_Websocket.status = 0;
+            };
         },
         setDisconnectEvent : function(func){
             EB_Websocket.socket.onclose = function(){
                 if(EB_Websocket.status === 1)
+                {
                     func();
+                    EB_Websocket.status = 0;
+                }
             };
         },
         on : function(name, func){
@@ -67,5 +78,12 @@ function EB_Websocket(host,port,auto_run){
         status : 0
     };
     if(auto_run) EB_Websocket.run();
-    return EB_Websocket;
+    return {
+        close : EB_Websocket.close,
+        setErrorEvent : EB_Websocket.setErrorEvent,
+        setDisconnectEvent : EB_Websocket.setDisconnectEvent,
+        on : EB_Websocket.on,
+        emit : EB_Websocket.emit,
+        run : EB_Websocket.run
+    };
 }
