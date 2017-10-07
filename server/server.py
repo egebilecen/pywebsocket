@@ -80,11 +80,19 @@ class EB_Websocket():
 				conn.close()
 				break
 			else:
+				print("[!] "+repr(data)+"\n")
 				where, recvData = self.message_decode(data)
-				try:
-					self.HANDLERS[where](conn, recvData, self)
-				except:
-					pass
+
+				if where == False or recvData == False:
+					# detected un-masked data or closing frame
+					conn.close()
+					break
+				else:
+					try:
+						self.HANDLERS[where](conn, recvData, self)
+					except:
+						# couldn't find handler
+						pass
 
 	# HANDSHAKE METHODS #
 	def create_handshake(self, hs):
@@ -114,7 +122,11 @@ class EB_Websocket():
 		self.send_message(conn, re_data)
 
 	def send_message(self, conn, data):
-		conn.send(self.message_encode(data))
+		send_data = self.message_encode(data)
+		if send_data == False:
+			raise Exception("Your data is too big for sending to client!")
+		else:
+			conn.send(send_data)
 
 	def message_decode(self, data):
 		HEADER, = struct.unpack("!H", data[:2])
@@ -128,6 +140,9 @@ class EB_Websocket():
 		MASKED = (HEADER >>  7) & 0x01
 		LEN    = (HEADER >>  0) & 0x7F
 
+		if OPCODE == 8:
+			return (False, False)
+
 		if LEN == 126:
 			LEN, = struct.unpack("!H", data[:2])
 			data = data[2:]
@@ -139,7 +154,7 @@ class EB_Websocket():
 			MASK = struct.unpack("4B", data[:4])
 			data = data[4:]
 		else:
-			return False
+			return (False,False)
 
 		payload = ""
 		for i, c in enumerate(data):
@@ -177,8 +192,3 @@ class EB_Websocket():
 			return False
 
 		return HEADER + PAYLOAD
-
-def start(socket, data, f):
-	f.emit(socket, "welcome", {"deneme":123})
-
-server = EB_Websocket(("",3131),{"start":start})
