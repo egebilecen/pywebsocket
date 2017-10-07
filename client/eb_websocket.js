@@ -9,11 +9,12 @@ function EB_Websocket(host,port,auto_run){
         handlers  : {},
         onOpen    : null,
         onMessage : function(obj){
+            var data;
             try{
-                var data = JSON.parse(obj.data);
+                data = JSON.parse(obj.data);
             }
             catch(err){
-                var data = {where:"null",data:{}};
+                data = {where:"null",data:{}};
             }
             if(EB_Websocket.handlers.hasOwnProperty(data.where))
                 EB_Websocket.handlers[data.where](data.data);
@@ -44,7 +45,7 @@ function EB_Websocket(host,port,auto_run){
             EB_Websocket.socket = new WebSocket("ws://"+host+":"+port);
             EB_Websocket.socket.onmessage = EB_Websocket.onMessage;
         }
-    }
+    };
     if(auto_run) EB_Websocket.run();
     return EB_Websocket;
 }
