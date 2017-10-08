@@ -11,15 +11,18 @@ signal(SIGPIPE, SIG_DFL)
 
 class EB_Websocket():
 	# Constructor
-	def __init__(self, addr=('',3131), handlers=None, autoRun=True, init=None):
+	def __init__(self, addr=('',3131), handlers=None, specialHandlers=None, autoRun=True, init=None):
 		if handlers is None:
 			handlers = {}
+		if specialHandlers is None:
+			specialHandlers = {}
 
 		self.HOST   = addr[0]
 		self.PORT   = addr[1]
 		self.SERVER = None
 		self.SOCKET_LIST = {}
 		self.HANDLERS    = handlers
+		self.SPECIAL_HANDLERS = specialHandlers
 		self.exception   = True
 		self.debug       = True
 		self.isClosed    = False
@@ -47,8 +50,8 @@ class EB_Websocket():
 
 		while True:
 			conn, addr = self.SERVER.accept()
-			if self.debug:
-				print('[?] New connection -', addr, end='\n\n')
+			# if self.debug:
+			# 	print('[?] New connection -', addr, end='\n\n')
 
 			data = conn.recv(4096)
 			conn.send(self.create_handshake(data.decode()))
@@ -82,8 +85,9 @@ class EB_Websocket():
 			data = conn.recv(4096)
 
 			if not data:
-				if self.debug:
-					print('\nA socket has left.',end='\n\n')
+				# if self.debug:
+				# 	print('\nA socket has left.',end='\n\n')
+				self.SPECIAL_HANDLERS["disconnect"](self, private_data)
 				self.SOCKET_LIST.pop(socket_id)
 				conn.close()
 				break
