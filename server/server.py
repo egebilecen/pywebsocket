@@ -100,12 +100,14 @@ class EB_Websocket():
 					conn.close()
 					break
 				else:
-					try:
+					if not self.exception:
+						try:
+							self.HANDLERS[where](conn, recvData, self, private_data)
+						except Exception as err:
+							# couldn't find handler or an error occured in handler
+							pass
+					else:
 						self.HANDLERS[where](conn, recvData, self, private_data)
-					except Exception as err:
-						# couldn't find handler or an error occured in handler
-						if self.exception:
-							print(err)
 
 	# HANDSHAKE METHODS #
 	def create_handshake(self, hs):
