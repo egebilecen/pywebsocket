@@ -11,7 +11,7 @@ signal(SIGPIPE, SIG_DFL)
 
 class EB_Websocket():
 	# Constructor
-	def __init__(self, addr=('',3131), handlers=None, specialHandlers=None, autoRun=True, init=None):
+	def __init__(self, addr=('',3131), handlers=None, specialHandlers=None, autoRun=True):
 		if handlers is None:
 			handlers = {}
 		if specialHandlers is None:
@@ -27,8 +27,8 @@ class EB_Websocket():
 		self.debug       = True
 		self.isClosed    = False
 
-		if callable(init):
-			init(self)
+		if callable(specialHandlers["init"]):
+			specialHandlers["init"](self)
 
 		if autoRun == True:
 			self.run_server()
