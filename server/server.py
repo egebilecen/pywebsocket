@@ -4,6 +4,7 @@ import struct
 import socket
 import base64
 import json
+import urllib
 from _thread import *
 from random import random
 from signal import signal, SIGPIPE, SIG_DFL
@@ -180,6 +181,8 @@ class EB_Websocket():
 		payload = ""
 		for i, c in enumerate(data):
 			payload += chr(c ^ MASK[i % 4])
+
+		payload = urllib.parse.unquote(payload)
 
 		try:
 			_data = json.loads(payload)
