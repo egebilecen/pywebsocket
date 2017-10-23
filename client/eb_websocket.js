@@ -46,7 +46,7 @@ function EB_Websocket(host,port, debug){
             EB_Websocket.handlers[name] = func;
         },
         emit : function(name, data){
-            var re_data = JSON.stringify({where: name, data: data});
+            var re_data = encodeURIComponent(JSON.stringify({where: name, data: data}));
             EB_Websocket.socket.send(re_data);
         },
         run : function(){
