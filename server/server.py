@@ -74,10 +74,14 @@ class EB_Websocket():
 		private_data = { "socket_id" : random() }
 		socket_id    = private_data["socket_id"]
 
-		try:
+		try: # check if socket exist
 			_a = self.SOCKET_LIST[socket_id]
-		except:
+		except: # if not exist create new one and store it
 			self.SOCKET_LIST[socket_id] = { "conn":conn, "addr":addr, "private_data":private_data }
+
+		# run on socket open event
+		if callable(self.SPECIAL_HANDLERS["on_socket_open"]):
+			self.SPECIAL_HANDLERS["on_socket_open"](self, private_data)
 
 		while True:
 			if(self.isClosed):
