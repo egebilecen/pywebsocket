@@ -94,7 +94,7 @@ class EB_Websocket():
 				exit_thread()
 
 			data = conn.recv(4096)
-			print(repr(data),"\n",repr(self.message_decode(data)))
+			
 			if not data:
 				# if self.debug:
 				# 	print('\nA socket has left.',end='\n\n')
