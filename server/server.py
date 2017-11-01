@@ -92,7 +92,8 @@ class EB_Websocket():
 			if not data:
 				# if self.debug:
 				# 	print('\nA socket has left.',end='\n\n')
-				self.SPECIAL_HANDLERS["disconnect"](self, private_data)
+				if callable(self.SPECIAL_HANDLERS["disconnect"]):
+					self.SPECIAL_HANDLERS["disconnect"](self, private_data)
 				self.SOCKET_LIST.pop(socket_id)
 				conn.close()
 				break
