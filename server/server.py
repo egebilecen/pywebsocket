@@ -70,6 +70,12 @@ class EB_Websocket():
 		self.HANDLERS[name] = handler
 
 	# Handler for clients
+	def close_client_connection(self, socket_id, conn, private_data):
+		if callable(self.SPECIAL_HANDLERS["disconnect"]):
+			self.SPECIAL_HANDLERS["disconnect"](self, private_data)
+		self.SOCKET_LIST.pop(socket_id)
+		conn.close()
+
 	def clientHandler(self, conn, addr):
 		private_data = { "socket_id" : random() }
 		socket_id    = private_data["socket_id"]
@@ -88,22 +94,18 @@ class EB_Websocket():
 				exit_thread()
 
 			data = conn.recv(4096)
-
+			print(repr(data),"\n",repr(self.message_decode(data)))
 			if not data:
 				# if self.debug:
 				# 	print('\nA socket has left.',end='\n\n')
-				if callable(self.SPECIAL_HANDLERS["disconnect"]):
-					self.SPECIAL_HANDLERS["disconnect"](self, private_data)
-				self.SOCKET_LIST.pop(socket_id)
-				conn.close()
+				self.close_client_connection(socket_id, conn, private_data)
 				break
 			else:
 				where, recvData = self.message_decode(data)
 
 				if where == False or recvData == False:
 					# detected un-masked data or closing frame
-					self.SOCKET_LIST.pop(socket_id)
-					conn.close()
+					self.close_client_connection(socket_id, conn, private_data)
 					break
 				else:
 					if not self.exception:
