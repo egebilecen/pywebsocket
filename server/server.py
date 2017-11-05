@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import hashlib
 import struct
 import socket
@@ -29,7 +30,11 @@ class EB_Websocket():
 		self.isClosed    = False
 
 		if callable(specialHandlers["init"]):
-			specialHandlers["init"](self)
+			try:
+				specialHandlers["init"](self)
+			except Exception as e:
+				print(e)
+				sys.exit(0)
 
 		if autoRun == True:
 			self.run_server()
@@ -94,7 +99,7 @@ class EB_Websocket():
 				exit_thread()
 
 			data = conn.recv(4096)
-			
+
 			if not data:
 				# if self.debug:
 				# 	print('\nA socket has left.',end='\n\n')
