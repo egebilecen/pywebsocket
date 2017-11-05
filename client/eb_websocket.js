@@ -49,6 +49,15 @@ function EB_Websocket(host,port, debug){
             var re_data = encodeURIComponent(JSON.stringify({where: name, data: data}));
             EB_Websocket.socket.send(re_data);
         },
+        release : function(key){ //release the handler for this key
+            if(typeof EB_Websocket.handlers[key] !== "undefined")
+            {
+                delete EB_Websocket.handlers[key];
+                return true;
+            }
+
+            return false;
+        },
         run : function(){
             EB_Websocket.socket = new WebSocket("ws://"+host+":"+port);
             EB_Websocket.socket.onopen = function(){
@@ -69,6 +78,7 @@ function EB_Websocket(host,port, debug){
         setDisconnectEvent : EB_Websocket.setDisconnectEvent,
         on : EB_Websocket.on,
         emit : EB_Websocket.emit,
+        release : EB_Websocket.release,
         getStatus : function(){
             return EB_Websocket.status;
         }
