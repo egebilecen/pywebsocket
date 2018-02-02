@@ -50,17 +50,17 @@ class EB_Websocket:
 		# Open Server
 		self.SERVER.bind((self.HOST, self.PORT))
 		if self.debug:
-			print('[?] Server opened.', end='\n\n')
+			print('[?] Server opened.', end='\n')
 
 		# Listen connections
 		self.SERVER.listen()
 		if self.debug:
-			print('[?] Server waiting for connections.', end='\n\n')
+			print('[?] Server waiting for connections.', end='\n')
 
 		while True:
 			conn, addr = self.SERVER.accept()
 			# if self.debug:
-			# 	print('[?] New connection -', addr, end='\n\n')
+			# 	print('[?] New connection -', addr, end='\n')
 
 			data = conn.recv(4096)
 			conn.send(self.create_handshake(data.decode()))
@@ -105,7 +105,7 @@ class EB_Websocket:
 
 			if not data:
 				# if self.debug:
-				# 	print('\nA socket has left.',end='\n\n')
+				# 	print('\nA socket has left.',end='\n')
 				self.close_client_connection(socket_id, conn, private_data)
 				break
 			else:
