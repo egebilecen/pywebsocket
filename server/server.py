@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import platform
 import hashlib
 import struct
 import socket
@@ -8,12 +9,14 @@ import json
 import urllib
 from _thread import *
 from random import random
-from signal import signal, SIGPIPE, SIG_DFL
-signal(SIGPIPE, SIG_DFL)
 
-class EB_Websocket():
+if platform.system() == "Linux":
+	from signal import signal, SIGPIPE, SIG_DFL
+	signal(SIGPIPE, SIG_DFL)
+
+class EB_Websocket:
 	# Constructor
-	def __init__(self, addr=('',3131), handlers=None, specialHandlers=None, autoRun=True):
+	def __init__(self, addr=('',3131), handlers=None, specialHandlers=None, autoRun=True, debug=False):
 		if handlers is None:
 			handlers = {}
 		if specialHandlers is None:
@@ -26,7 +29,7 @@ class EB_Websocket():
 		self.HANDLERS    = handlers
 		self.SPECIAL_HANDLERS = specialHandlers
 		self.exception   = True
-		self.debug       = True
+		self.debug       = debug
 		self.isClosed    = False
 
 		if callable(specialHandlers["init"]):
