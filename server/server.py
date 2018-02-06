@@ -31,6 +31,7 @@ class EB_Websocket:
 		self.exception   = True
 		self.debug       = debug
 		self.isClosed    = False
+		self.platform    = platform.system()
 
 		if callable(specialHandlers["init"]):
 			try:
