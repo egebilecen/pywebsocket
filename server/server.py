@@ -7,7 +7,7 @@ import socket
 import base64
 import json
 import urllib
-from _thread import *
+import threading
 from random import random
 
 if platform.system() == "Linux":
@@ -22,16 +22,18 @@ class EB_Websocket:
 		if specialHandlers is None:
 			specialHandlers = {}
 
-		self.HOST   = addr[0]
-		self.PORT   = addr[1]
-		self.SERVER = None
-		self.SOCKET_LIST = {}
-		self.HANDLERS    = handlers
+		self.HOST   		  = addr[0]
+		self.PORT  			  = addr[1]
+		self.SERVER 		  = None
+		self.SOCKET_LIST	  = {}
+		self.HANDLERS    	  = handlers
 		self.SPECIAL_HANDLERS = specialHandlers
-		self.exception   = True
-		self.debug       = debug
-		self.isClosed    = False
-		self.platform    = platform.system()
+		self.exception   	  = True
+		self.debug       	  = debug
+		self.isClosed    	  = False
+		self.platform    	  = platform.system()
+		self.threads		  = [] # client handler threads will be here.
+		self._threads 		  = {} # for special threads like "Loop".
 
 		if callable(specialHandlers["init"]):
 			try:
@@ -40,7 +42,13 @@ class EB_Websocket:
 				print(e)
 				sys.exit(0)
 
-		if autoRun == True:
+		# Multiprocessing for Loop Special Handler #
+		if callable(self.SPECIAL_HANDLERS["loop"]):
+			_t = threading.Thread(target=self.SPECIAL_HANDLERS["loop"],args=(self,))
+			_t.daemon = False
+			self._threads["loop"] = _t
+
+		if autoRun:
 			self.run_server()
 
 	# SERVER METHODS #
@@ -58,34 +66,44 @@ class EB_Websocket:
 		if self.debug:
 			print('[?] Server waiting for connections.', end='\n')
 
-		while True:
-			conn, addr = self.SERVER.accept()
-			# if self.debug:
-			# 	print('[?] New connection -', addr, end='\n')
+		# Run loop #
+		self._threads["loop"].start()
 
-			data = conn.recv(4096)
-			conn.send(self.create_handshake(data.decode()))
-			start_new_thread(self.clientHandler, (conn, addr,))
+		while True:
+			if self.isClosed:
+				break
+
+			try:
+				conn, addr = self.SERVER.accept()
+				if self.debug:
+					print('[?] New connection -', addr, end='\n')
+
+				data = conn.recv(4096)
+				conn.send(self.create_handshake(data.decode()))
+
+				# create thread
+				_t = threading.Thread(target=self.client_handler, args=(conn, addr,))
+				self.threads.append(_t)
+				_t.start()
+
+			except KeyboardInterrupt:
+				self.close_server()
 
 	# Close server
 	def close_server(self):
 		self.SERVER.close()
 		self.isClosed = True
-		if self.debug:
-			print("[?] Server closed.")
+
+		print("[?] Server closed.")
 
 	# HANDLER METHODS #
-	def setHandler(self, name, handler):
-		self.HANDLERS[name] = handler
-
-	# Handler for clients
 	def close_client_connection(self, socket_id, conn, private_data):
 		if callable(self.SPECIAL_HANDLERS["disconnect"]):
 			self.SPECIAL_HANDLERS["disconnect"](self, private_data)
 		self.SOCKET_LIST.pop(socket_id)
 		conn.close()
 
-	def clientHandler(self, conn, addr):
+	def client_handler(self, conn, addr):
 		private_data = { "socket_id" : random() }
 		socket_id    = private_data["socket_id"]
 
@@ -98,15 +116,12 @@ class EB_Websocket:
 		if callable(self.SPECIAL_HANDLERS["on_socket_open"]):
 			self.SPECIAL_HANDLERS["on_socket_open"](self, private_data)
 
-		while True:
-			if(self.isClosed):
-				exit_thread()
-
+		while True and not self.isClosed:
 			data = conn.recv(4096)
 
 			if not data:
-				# if self.debug:
-				# 	print('\nA socket has left.',end='\n')
+				if self.debug:
+					print('\nA socket has left.',end='\n')
 				self.close_client_connection(socket_id, conn, private_data)
 				break
 			else:
@@ -120,11 +135,16 @@ class EB_Websocket:
 					if not self.exception:
 						try:
 							self.HANDLERS[where](conn, recvData, self, private_data)
-						except Exception as err:
+						except:
 							# couldn't find handler or an error occured in handler
 							pass
 					else:
 						self.HANDLERS[where](conn, recvData, self, private_data)
+
+	def loop(self):
+		if callable(self.SPECIAL_HANDLERS["loop"]):
+			while True and not self.isClosed:
+				self.SPECIAL_HANDLERS["loop"](self)
 
 	# HANDSHAKE METHODS #
 	def create_handshake(self, hs):
@@ -161,7 +181,7 @@ class EB_Websocket:
 
 	def send_message(self, conn, data):
 		send_data = self.message_encode(data)
-		if send_data == False:
+		if not send_data:
 			raise Exception("Your data is too big for sending to client!")
 		else:
 			conn.send(send_data)
