@@ -6,9 +6,12 @@
 from array import array
 from typing import Callable, Type
 import socket
+import base64
 import threading
 
 class WebsocketServer:
+    MAGIC_NUMBER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+
     def __init__(self,
                  ip    : str  = "",
                  port  : int  = 3630,
@@ -44,31 +47,38 @@ class WebsocketServer:
     def _create_handshake(http_request : bytes) -> bytes:
         http_data = WebsocketServer._parse_http_request(http_request.decode("ascii"))
 
-        # https://datatracker.ietf.org/doc/html/rfc6455#section-4.1
-        # Must be GET request
-        if http_data["Method"] == "POST":                   return b""
+        # ----| HTTP Request Validity Checks |----
+        # (https://datatracker.ietf.org/doc/html/rfc6455#section-4.1)
+        # HTTP request must be GET request
+        if http_data["Method"] == "POST":                      return b""
 
         # HTTP version must be at least 1.1
-        if float(http_data["Version"].split("/")[1]) < 1.1: return b""
+        if float(http_data["Version"].split("/")[1]) < 1.1:    return b""
 
         # HTTP request must contain "Host" field
-        if "Host" not in http_data:                         return b""
+        if "Host" not in http_data:                            return b""
 
         # HTTP request must contain "Upgrade" field with the "websocket" keyword included
         # in it's value
-        if "Upgrade" not in http_data:                      return b""
-        elif "websocket" not in http_data["Upgrade"]:       return b""
+        if "Upgrade" not in http_data:                         return b""
+        elif "websocket" not in http_data["Upgrade"].lower():  return b""
 
         # HTTP request must include "Connection" field
-        if "Connection" not in http_data:                   return b""
-        elif "Upgrade" not in http_data["Connection"]:      return b""
+        if "Connection" not in http_data:                      return b""
+        elif "upgrade" not in http_data["Connection"].lower(): return b""
 
         # HTTP request must include "Sec-WebSocket-Key" field
-        if "Sec-WebSocket-Key" not in http_data:            return b""
+        if "Sec-WebSocket-Key" not in http_data:               return b""
 
         # HTTP request must include "Sec-WebSocket-Version" field and it's value must be 13
-        if "Sec-WebSocket-Version" not in http_data:        return b""
-        elif http_data["Sec-WebSocket-Version"] != "13":    return b""
+        if "Sec-WebSocket-Version" not in http_data:           return b""
+        elif http_data["Sec-WebSocket-Version"] != "13":       return b""
+
+        # Sec-WebSocket-Key field's value must be 16 bytes when decoded
+        websocket_key         = http_data["Sec-WebSocket-Key"]
+        websocket_key_decoded = base64.b64decode(websocket_key)
+
+        if len(websocket_key_decoded) != 16:                   return b""
 
     @staticmethod
     def _parse_http_request(http_request : str) -> dict[str, str]:
