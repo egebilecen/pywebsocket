@@ -3,7 +3,7 @@
     Date  : 06.09.2021
 """
 
-from typing import Callable
+from typing import Callable, Type
 import socket
 import threading
 
@@ -16,7 +16,7 @@ class WebsocketServer:
         self._server      = None
         self._ip          = ip
         self._port        = port
-        self._addr        = (self.IP, self.PORT)
+        self._addr        = (self._ip, self._port)
         self._thread_list = {}
         self._is_running  = False
         self._debug       = debug
@@ -33,10 +33,10 @@ class WebsocketServer:
         }
 
     @staticmethod
-    def _client_handler(cls):
+    def _client_handler(cls : "WebsocketServer") -> None:
         pass
 
-    def _print_log(self, title, msg):
+    def _print_log(self, title, msg) -> None:
         if self._debug:
             print("[{}] - {}".format(title, msg))
 
@@ -55,20 +55,23 @@ class WebsocketServer:
         self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server.bind(self._addr)
 
-        self._print_log("Socket binded.")
+        self._print_log("run()", "Socket binded.")
 
         self._server.listen()
 
-        self._print_log("Server listening for connection(s).")
+        self._print_log("run()", "Server listening for connection(s).")
 
         if self._special_handler_list["loop"] is not None:
-            self._print_log("Starting special handler \"loop\".")
+            self._print_log("run()", "Starting special handler \"loop\".")
             self._special_handler_list["loop"](self._socket_list)
 
         while 1:
             conn, addr = self._server.accept()
 
-            self._print_log("New connection: {}.".format(addr))
+            self._print_log("run()", "New connection: {}.".format(addr))
+
+            data = conn.recv(4096)
+            print(len(data))
 
             client_thread = threading.Thread(target=WebsocketServer._client_handler, args=(self,))
             client_thread.daemon = False
