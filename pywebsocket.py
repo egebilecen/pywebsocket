@@ -3,6 +3,7 @@
     Date  : 06.09.2021
 """
 
+from array import array
 from typing import Callable, Type
 import socket
 import threading
@@ -38,6 +39,30 @@ class WebsocketServer:
     @staticmethod
     def _client_handler(cls : "WebsocketServer") -> None:
         pass
+
+    @staticmethod
+    def _create_handshake(http_request : bytes) -> bytes:
+        http_data = WebsocketServer._parse_http_request(http_request.decode("ascii"))
+
+        print(http_data)
+
+    @staticmethod
+    def _parse_http_request(http_request : str) -> dict[str, str]:
+        request_split = [elem for elem in http_request.split("\r\n") if elem]
+        method_url_version_split = request_split[0].split(" ")
+
+        ret_val = {
+            "method"  : method_url_version_split[0],
+            "path"    : method_url_version_split[1],
+            "version" : method_url_version_split[2]
+        }
+
+        for line in request_split[1:]:
+            key_val_split = line.split(":")
+
+            ret_val[key_val_split[0].lower()] = key_val_split[1].strip()
+
+        return ret_val
 
     def _print_log(self, title, msg) -> None:
         if self._debug:
@@ -76,7 +101,13 @@ class WebsocketServer:
 
             self._print_log("run()", "New connection: {}:{}.".format(addr[0], addr[1]))
 
-            data = conn.recv(1024)
+            handshake_request = conn.recv(1024)
+            handshake = WebsocketServer._create_handshake(handshake_request)
+
+            # Not a valid request since method to generate websocket handshake returned nothing
+            if handshake == b"":
+                conn.close()
+                continue
 
             client_thread = threading.Thread(target=WebsocketServer._client_handler, args=(self,))
             client_thread.daemon = False
