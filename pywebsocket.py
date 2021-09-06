@@ -32,14 +32,20 @@ class WebsocketServer:
             "client_disconnect" : None
         }
 
+    """
+        Private Method(s)
+    """
     @staticmethod
     def _client_handler(cls : "WebsocketServer") -> None:
         pass
 
     def _print_log(self, title, msg) -> None:
         if self._debug:
-            print("[{}] - {}".format(title, msg))
+            print("pywebsocket - {} - {}".format(title, msg))
 
+    """
+        Public Method(s)
+    """
     def set_special_handler(self, 
                             handler_name : str, 
                             func         : Callable) -> None:
@@ -68,10 +74,9 @@ class WebsocketServer:
         while 1:
             conn, addr = self._server.accept()
 
-            self._print_log("run()", "New connection: {}.".format(addr))
+            self._print_log("run()", "New connection: {}:{}.".format(addr[0], addr[1]))
 
-            data = conn.recv(4096)
-            print(len(data))
+            data = conn.recv(1024)
 
             client_thread = threading.Thread(target=WebsocketServer._client_handler, args=(self,))
             client_thread.daemon = False
