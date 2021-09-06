@@ -50,7 +50,7 @@ class WebsocketServer:
         # ----| HTTP Request Validity Checks |----
         # (https://datatracker.ietf.org/doc/html/rfc6455#section-4.1)
         # HTTP request must be GET request
-        if http_data["Method"] == "POST":                      return b""
+        if http_data["Method"] != "GET":                       return b""
 
         # HTTP version must be at least 1.1
         if float(http_data["Version"].split("/")[1]) < 1.1:    return b""
