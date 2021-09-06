@@ -44,7 +44,31 @@ class WebsocketServer:
     def _create_handshake(http_request : bytes) -> bytes:
         http_data = WebsocketServer._parse_http_request(http_request.decode("ascii"))
 
-        print(http_data)
+        # https://datatracker.ietf.org/doc/html/rfc6455#section-4.1
+        # Must be GET request
+        if http_data["Method"] == "POST":                   return b""
+
+        # HTTP version must be at least 1.1
+        if float(http_data["Version"].split("/")[1]) < 1.1: return b""
+
+        # HTTP request must contain "Host" field
+        if "Host" not in http_data:                         return b""
+
+        # HTTP request must contain "Upgrade" field with the "websocket" keyword included
+        # in it's value
+        if "Upgrade" not in http_data:                      return b""
+        elif "websocket" not in http_data["Upgrade"]:       return b""
+
+        # HTTP request must include "Connection" field
+        if "Connection" not in http_data:                   return b""
+        elif "Upgrade" not in http_data["Connection"]:      return b""
+
+        # HTTP request must include "Sec-WebSocket-Key" field
+        if "Sec-WebSocket-Key" not in http_data:            return b""
+
+        # HTTP request must include "Sec-WebSocket-Version" field and it's value must be 13
+        if "Sec-WebSocket-Version" not in http_data:        return b""
+        elif http_data["Sec-WebSocket-Version"] != "13":    return b""
 
     @staticmethod
     def _parse_http_request(http_request : str) -> dict[str, str]:
@@ -52,15 +76,14 @@ class WebsocketServer:
         method_url_version_split = request_split[0].split(" ")
 
         ret_val = {
-            "method"  : method_url_version_split[0],
-            "path"    : method_url_version_split[1],
-            "version" : method_url_version_split[2]
+            "Method"  : method_url_version_split[0],
+            "Path"    : method_url_version_split[1],
+            "Version" : method_url_version_split[2]
         }
 
         for line in request_split[1:]:
             key_val_split = line.split(":")
-
-            ret_val[key_val_split[0].lower()] = key_val_split[1].strip()
+            ret_val[key_val_split[0]] = key_val_split[1].strip()
 
         return ret_val
 
