@@ -3,8 +3,9 @@
     Date  : 06.09.2021
 """
 
-from array import array
-from typing import Callable, Type
+from typing import Callable
+from random import randint
+from sys    import maxsize as MAX_UINT_VALUE
 import socket
 import base64
 import threading
@@ -26,8 +27,8 @@ class WebsocketServer:
         self._debug       = debug
 
         # Socket Variables
-        self._socket_list        = {}
-        self._socket_thread_list = {}
+        self._client_socket_list        = {}
+        self._client_socket_thread_list = {}
 
         # Handler Variables
         self._special_handler_list = {
@@ -40,8 +41,12 @@ class WebsocketServer:
         Private Method(s)
     """
     @staticmethod
-    def _client_handler(cls : "WebsocketServer") -> None:
-        pass
+    def _client_handler(cls       : "WebsocketServer",
+                        socket_id : int) -> None:
+        client_socket = cls._client_socket_list[socket_id]["socket"]
+
+        while cls._client_socket_thread_list[socket_id]["status"] == 1:
+            pass
 
     @staticmethod
     def _create_handshake(http_request : bytes) -> bytes:
@@ -101,6 +106,14 @@ class WebsocketServer:
         if self._debug:
             print("pywebsocket - {} - {}".format(title, msg))
 
+    def _generate_socket_id(self):
+        rand_int = randint(0, MAX_UINT_VALUE)
+
+        if rand_int in self._client_socket_list:
+            return self._generate_socket_id()
+
+        return rand_int
+
     """
         Public Method(s)
     """
@@ -142,6 +155,19 @@ class WebsocketServer:
                 conn.close()
                 continue
 
-            client_thread = threading.Thread(target=WebsocketServer._client_handler, args=(self,))
+            client_socket_id = self._generate_socket_id()
+            client_thread    = threading.Thread(target=WebsocketServer._client_handler, args=(self, client_socket_id))
+            
+            self._client_socket_list[client_socket_id] = {
+                "socket" : conn,
+                "addr"   : addr,
+                "data"   : {}
+            }
+
+            self._client_socket_thread_list[client_socket_id] = {
+                "status" : 1,
+                "thread" : client_thread
+            }
+
             client_thread.daemon = False
             client_thread.start()
