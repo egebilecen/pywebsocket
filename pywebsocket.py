@@ -44,10 +44,13 @@ class WebsocketServer:
     @staticmethod
     def _client_handler(cls       : "WebsocketServer",
                         socket_id : int) -> None:
+        cls._print_log("_client_handler()", "A new thread has been started for socket id {}.".format(socket_id))
         client_socket = cls._client_socket_list[socket_id]["socket"]
 
         while cls._client_socket_thread_list[socket_id]["status"] == 1:
             pass
+
+        cls._print_log("_client_handler()", "Thread of socket id {} has been terminated.".format(socket_id))
 
     @staticmethod
     def _create_handshake(http_request : bytes) -> bytes:
