@@ -121,7 +121,7 @@ class WebsocketServer:
         if self._debug:
             print("pywebsocket - {} - {}".format(title, msg))
 
-    def _generate_socket_id(self):
+    def _generate_socket_id(self) -> int:
         rand_int = randint(0, MAX_UINT_VALUE)
 
         if rand_int in self._client_socket_list:
@@ -143,48 +143,63 @@ class WebsocketServer:
 
         self._special_handler_list[handler_name] = func
 
-    def run(self) -> None:
+    def stop(self) -> None:
+        self._is_running = False
+
+    def start(self) -> None:
         self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server.bind(self._addr)
 
-        self._print_log("run()", "Socket binded.")
+        self._print_log("start()", "Socket binded.")
 
         self._server.listen()
 
-        self._print_log("run()", "Server listening for connection(s).")
+        self._print_log("start()", "Server listening for connection(s).")
 
         if self._special_handler_list["loop"] is not None:
-            self._print_log("run()", "Starting special handler \"loop\".")
+            self._print_log("start()", "Starting special handler \"loop\".")
             self._special_handler_list["loop"](self._socket_list)
 
-        while 1:
-            conn, addr = self._server.accept()
+        self._is_running = True
 
-            self._print_log("run()", "New connection: {}:{}.".format(addr[0], addr[1]))
+        def impl() -> None:
+            self._print_log("start() - impl()", "Thread for handling handshakes is running.")
 
-            handshake_request = conn.recv(2048)
-            handshake = WebsocketServer._create_handshake(handshake_request)
+            while self._is_running:
+                conn, addr = self._server.accept()
 
-            # Not a valid request since method to generate websocket handshake returned nothing
-            if handshake == b"":
-                conn.close()
-                continue
+                self._print_log("start()", "New connection: {}:{}.".format(addr[0], addr[1]))
 
-            conn.send(handshake)
+                handshake_request = conn.recv(2048)
+                handshake = WebsocketServer._create_handshake(handshake_request)
 
-            client_socket_id = self._generate_socket_id()
-            client_thread    = threading.Thread(target=WebsocketServer._client_handler, args=(self, client_socket_id))
-            
-            self._client_socket_list[client_socket_id] = {
-                "socket" : conn,
-                "addr"   : addr,
-                "data"   : {}
-            }
+                # Not a valid request since method to generate websocket handshake returned nothing
+                if handshake == b"":
+                    conn.close()
+                    continue
 
-            self._client_socket_thread_list[client_socket_id] = {
-                "status" : 1,
-                "thread" : client_thread
-            }
+                conn.send(handshake)
 
-            client_thread.daemon = False
-            client_thread.start()
+                client_socket_id = self._generate_socket_id()
+                client_thread    = threading.Thread(target=WebsocketServer._client_handler, args=(self, client_socket_id))
+                
+                self._client_socket_list[client_socket_id] = {
+                    "socket" : conn,
+                    "addr"   : addr,
+                    "data"   : {}
+                }
+
+                self._client_socket_thread_list[client_socket_id] = {
+                    "status" : 1,
+                    "thread" : client_thread
+                }
+
+                client_thread.daemon = False
+                client_thread.start()
+        
+            self._print_log("start() - impl()", "Closing the server.")
+            self._server.close()
+
+        _ = threading.Thread(target=impl, args=())
+        _.daemon = False
+        _.start()
