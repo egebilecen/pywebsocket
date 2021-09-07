@@ -18,7 +18,7 @@ class WebsocketServer:
                  ip                 : str  = "",
                  port               : int  = 3630,
                  debug              : bool = False,
-                 client_buffer_size : int = 2048) -> None:
+                 client_buffer_size : int  = 2048) -> None:
         # Server Variables
         self._server             = None
         self._ip                 = ip
@@ -69,6 +69,8 @@ class WebsocketServer:
                     cls._special_handler_list["client_disconnect"](socket_dict)
 
                 break
+            else:
+                client_data = WebsocketServer._decode_packet(data)
 
         cls._print_log("_client_handler()", "Thread of socket id {} has been terminated.".format(socket_id))
         cls._client_thread_list.pop(socket_id)
@@ -137,6 +139,10 @@ class WebsocketServer:
             ret_val[key_val_split[0]] = key_val_split[1].strip()
 
         return ret_val
+
+    @staticmethod
+    def _decode_packet(packet : bytes) -> dict:
+        print(packet)
 
     def _print_log(self, title, msg) -> None:
         if self._debug:
