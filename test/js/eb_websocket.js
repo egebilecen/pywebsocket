@@ -61,10 +61,7 @@ function EB_Websocket(host,port, debug){
         run : function(){
             EB_Websocket.socket = new WebSocket("ws://"+host+":"+port);
             EB_Websocket.socket.onopen = function(){
-                var event = document.createEvent("Event");
-                event.initEvent("EB_Websocket_Connection");
-                document.dispatchEvent(event);
-                EB_Websocket.status = 1;
+                console.log("Websocket connection successful!");
             };
             EB_Websocket.socket.onmessage = EB_Websocket.onMessage;
         },
