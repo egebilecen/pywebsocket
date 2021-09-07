@@ -112,14 +112,16 @@ class WebsocketServer:
 
         if len(websocket_key_decoded) != 16:                   return b""
 
-        sha_1 = hashlib.sha1()
-        sha_1.update((websocket_key + WebsocketServer.MAGIC_NUMBER).encode("ascii"))
-        handshake_key = sha_1.hexdigest()
+        sha1 = hashlib.sha1()
+        sha1.update((websocket_key + WebsocketServer.MAGIC_NUMBER).encode("ascii"))
+        sha1_bytes = sha1.digest()
+        handshake_key = base64.b64encode(sha1_bytes).decode("ascii")
 
         handshake_response  = "HTTP/1.1 101 Switching Protocols\r\n"
         handshake_response += "Upgrade: websocket\r\n"
         handshake_response += "Connection: Upgrade\r\n"
         handshake_response += "Sec-WebSocket-Accept: {}\r\n".format(handshake_key)
+        handshake_response += "\r\n"
 
         return handshake_response.encode("ascii")
 
