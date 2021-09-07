@@ -47,7 +47,8 @@ class WebsocketServer:
         cls._print_log("_client_handler()", "A new thread has been started for socket id {}.".format(socket_id))
         client_socket = cls._client_socket_list[socket_id]["socket"]
 
-        while cls._client_socket_thread_list[socket_id]["status"] == 1:
+        while cls._is_running \
+        and   cls._client_socket_thread_list[socket_id]["status"] == 1:
             pass
 
         cls._print_log("_client_handler()", "Thread of socket id {} has been terminated.".format(socket_id))
