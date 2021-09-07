@@ -8,6 +8,7 @@ from random import randint
 from sys    import maxsize as MAX_UINT_VALUE
 import socket
 import base64
+import hashlib
 import threading
 
 class WebsocketServer:
@@ -85,6 +86,17 @@ class WebsocketServer:
 
         if len(websocket_key_decoded) != 16:                   return b""
 
+        sha_1 = hashlib.sha1()
+        sha_1.update((websocket_key + WebsocketServer.MAGIC_NUMBER).encode("ascii"))
+        handshake_key = sha_1.hexdigest()
+
+        handshake_response  = "HTTP/1.1 101 Switching Protocols\r\n"
+        handshake_response += "Upgrade: websocket\r\n"
+        handshake_response += "Connection: Upgrade\r\n"
+        handshake_response += "Sec-WebSocket-Accept: {}\r\n".format(handshake_key)
+
+        return handshake_response.encode("ascii")
+
     @staticmethod
     def _parse_http_request(http_request : str) -> dict[str, str]:
         request_split = [elem for elem in http_request.split("\r\n") if elem]
@@ -147,13 +159,15 @@ class WebsocketServer:
 
             self._print_log("run()", "New connection: {}:{}.".format(addr[0], addr[1]))
 
-            handshake_request = conn.recv(1024)
+            handshake_request = conn.recv(2048)
             handshake = WebsocketServer._create_handshake(handshake_request)
 
             # Not a valid request since method to generate websocket handshake returned nothing
             if handshake == b"":
                 conn.close()
                 continue
+
+            conn.send(handshake)
 
             client_socket_id = self._generate_socket_id()
             client_thread    = threading.Thread(target=WebsocketServer._client_handler, args=(self, client_socket_id))
