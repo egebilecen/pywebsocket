@@ -3,12 +3,13 @@
     Date  : 06.09.2021
 """
 
-from typing import Callable
+from typing import Callable, Any
 from random import randint
 from sys    import maxsize as MAX_UINT_VALUE
 import socket
 import base64
 import hashlib
+import struct
 import threading
 
 class WebsocketServer:
@@ -60,17 +61,13 @@ class WebsocketServer:
 
             if not data:
                 cls._print_log("_client_handler()", "Socket id {} has left from server.".format(socket_id))
-                
-                client_socket.close()
-                cls._client_socket_list.pop(socket_id)
-                
-                if cls._special_handler_list["client_disconnect"] is not None:
-                    cls._print_log("_client_handler()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
-                    cls._special_handler_list["client_disconnect"](socket_dict)
-
+                cls._close_client_socket(socket_dict["id"])
                 break
             else:
-                client_data = WebsocketServer._decode_packet(data)
+                try:
+                    client_data = WebsocketServer._decode_packet(data)
+                except ValueError:
+                    pass
 
         cls._print_log("_client_handler()", "Thread of socket id {} has been terminated.".format(socket_id))
         cls._client_thread_list.pop(socket_id)
@@ -143,8 +140,22 @@ class WebsocketServer:
         return ret_val
 
     @staticmethod
-    def _decode_packet(packet : bytes) -> dict:
-        print(packet)
+    def _decode_packet(packet : bytes) -> Any:
+        header = struct.unpack("!H", packet[:2])[0]
+
+        FIN    = (header >> 15) & 0x01
+        RSV1   = (header >> 14) & 0x01
+        RSV2   = (header >> 13) & 0x01
+        RSV3   = (header >> 12) & 0x01
+        OPCODE = (header >> 8)  & 0x0F
+        MASK   = (header >> 7)  & 0x01
+        LEN    = (header >> 0)  & 0x7F
+
+        # Received unknown OPCODE
+        if   OPCODE >= 0x01 and OPCODE <= 0x0F:
+            raise ValueError("Unknown OPCODE")
+        elif OPCODE == 0x08:
+            raise ValueError("Closing connection")
 
     def _print_log(self, title, msg) -> None:
         if self._debug:
@@ -158,6 +169,22 @@ class WebsocketServer:
 
         return rand_int
 
+    
+    def _close_client_socket(self, 
+                            socket_id            : int,
+                            call_special_handler : bool = True):
+        socket_dict   = self._client_socket_list[socket_id]
+        client_socket = self._client_socket_list[socket_id]["socket"]
+
+        client_socket.close()
+        self._client_socket_list.pop(socket_id)
+        self._client_thread_list[socket_id]["status"] = 0
+        
+        if  call_special_handler \
+        and self._special_handler_list["client_disconnect"] is not None:
+            self._print_log("_close_client_socket()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
+            self._special_handler_list["client_disconnect"](socket_dict)
+
     """
         Public Method(s)
     """
@@ -170,6 +197,7 @@ class WebsocketServer:
         if not callable(func):
             raise TypeError("Param func is not callable.")
 
+        self._print_log("set_special_handler()", "Special handler for \"{}\" has been set.".format(handler_name))
         self._special_handler_list[handler_name] = func
 
     def stop(self) -> None:
