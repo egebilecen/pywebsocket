@@ -15,17 +15,19 @@ class WebsocketServer:
     MAGIC_NUMBER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
     def __init__(self,
-                 ip    : str  = "",
-                 port  : int  = 3630,
-                 debug : bool = False) -> None:
+                 ip                 : str  = "",
+                 port               : int  = 3630,
+                 debug              : bool = False,
+                 client_buffer_size : int = 2048) -> None:
         # Server Variables
-        self._server      = None
-        self._ip          = ip
-        self._port        = port
-        self._addr        = (self._ip, self._port)
-        self._thread_list = {}
-        self._is_running  = False
-        self._debug       = debug
+        self._server             = None
+        self._ip                 = ip
+        self._port               = port
+        self._addr               = (self._ip, self._port)
+        self._thread_list        = {}
+        self._is_running         = False
+        self._debug              = debug
+        self._client_buffer_size = client_buffer_size
 
         # Socket Variables
         self._client_socket_list        = {}
@@ -166,7 +168,8 @@ class WebsocketServer:
         def impl() -> None:
             self._print_log("start() - impl()", "Thread for handling handshakes is running.")
 
-            while self._is_running:
+            while self._is_running \
+            and   self._thread_list["handshake"]["status"] == 1:
                 conn, addr = self._server.accept()
 
                 self._print_log("start()", "New connection: {}:{}.".format(addr[0], addr[1]))
@@ -201,6 +204,12 @@ class WebsocketServer:
             self._print_log("start() - impl()", "Closing the server.")
             self._server.close()
 
-        _ = threading.Thread(target=impl, args=())
-        _.daemon = False
-        _.start()
+        handshake_thread = threading.Thread(target=impl, args=())
+
+        self._thread_list["handshake"] = {
+            "status" : 1,
+            "thread" : handshake_thread
+        }
+
+        handshake_thread.daemon = False
+        handshake_thread.start()
