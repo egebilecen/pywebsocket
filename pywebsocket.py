@@ -47,7 +47,12 @@ class WebsocketServer:
     def _client_handler(cls       : "WebsocketServer",
                         socket_id : int) -> None:
         cls._print_log("_client_handler()", "A new thread has been started for socket id {}.".format(socket_id))
-        client_socket = cls._client_socket_list[socket_id]["socket"]
+        socket_dict   = cls._client_socket_list[socket_id]
+        client_socket = socket_dict["socket"]
+
+        if cls._special_handler_list["client_connect"] is not None:
+            cls._print_log("_client_handler()", "Calling \"client_connect\" special handler for socket id {}.".format(socket_id))
+            cls._special_handler_list["client_connect"](socket_dict)
 
         while cls._is_running \
         and   cls._client_thread_list[socket_id]["status"] == 1:
@@ -60,8 +65,8 @@ class WebsocketServer:
                 cls._client_socket_list.pop(socket_id)
                 
                 if cls._special_handler_list["client_disconnect"] is not None:
-                    cls._print_log("_client_handler()", "Calling client_disconnect special handler for socket id {}.".format(socket_id))
-                    cls._special_handler_list["client_disconnect"](socket_id)
+                    cls._print_log("_client_handler()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
+                    cls._special_handler_list["client_disconnect"](socket_dict)
 
                 break
 
@@ -201,12 +206,14 @@ class WebsocketServer:
                 client_thread    = threading.Thread(target=WebsocketServer._client_handler, args=(self, client_socket_id))
                 
                 self._client_socket_list[client_socket_id] = {
+                    "id"     : client_socket_id,
                     "socket" : conn,
                     "addr"   : addr,
                     "data"   : {}
                 }
 
                 self._client_thread_list[client_socket_id] = {
+                    "id"     : client_socket_id,
                     "status" : 1,
                     "thread" : client_thread
                 }
