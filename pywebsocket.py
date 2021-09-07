@@ -157,6 +157,10 @@ class WebsocketServer:
         elif OPCODE == 0x08:
             raise ValueError("Closing connection")
 
+        # Client must send masked frame
+        if MASK != 1:
+            raise ValueError("Client must send masked frames")
+
     def _print_log(self, title, msg) -> None:
         if self._debug:
             print("pywebsocket - {} - {}".format(title, msg))
