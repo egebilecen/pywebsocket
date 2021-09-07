@@ -5,6 +5,8 @@ server.start()
 
 while 1:
     try:
-        pass
+        print(eval(input(">> ")))
+    except Exception as ex:
+        print("EXCEPTION - "+str(ex))
     except KeyboardInterrupt:
         server.stop()
