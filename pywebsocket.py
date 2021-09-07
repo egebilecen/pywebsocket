@@ -56,9 +56,8 @@ class WebsocketServer:
             if not data:
                 cls._print_log("_client_handler()", "Socket id {} has left from server.".format(socket_id))
                 
-                cls._client_socket_list.pop(socket_id)
-                cls._client_thread_list.pop(socket_id)
                 client_socket.close()
+                cls._client_socket_list.pop(socket_id)
                 
                 if cls._special_handler_list["client_disconnect"] is not None:
                     cls._print_log("_client_handler()", "Calling client_disconnect special handler for socket id {}.".format(socket_id))
@@ -67,6 +66,7 @@ class WebsocketServer:
                 break
 
         cls._print_log("_client_handler()", "Thread of socket id {} has been terminated.".format(socket_id))
+        cls._client_thread_list.pop(socket_id)
 
     @staticmethod
     def _create_handshake(http_request : bytes) -> bytes:
