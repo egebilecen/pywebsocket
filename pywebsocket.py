@@ -27,11 +27,11 @@ class WebsocketServer:
         self._thread_list        = {}
         self._is_running         = False
         self._debug              = debug
-        self._client_buffer_size = client_buffer_size
 
-        # Socket Variables
-        self._client_socket_list        = {}
-        self._client_socket_thread_list = {}
+        # Client Variables
+        self._client_socket_list = {}
+        self._client_thread_list = {}
+        self._client_buffer_size = client_buffer_size
 
         # Handler Variables
         self._special_handler_list = {
@@ -50,8 +50,21 @@ class WebsocketServer:
         client_socket = cls._client_socket_list[socket_id]["socket"]
 
         while cls._is_running \
-        and   cls._client_socket_thread_list[socket_id]["status"] == 1:
-            pass
+        and   cls._client_thread_list[socket_id]["status"] == 1:
+            data = client_socket.recv(cls._client_buffer_size)
+
+            if not data:
+                cls._print_log("_client_handler()", "Socket id {} has left from server.".format(socket_id))
+                
+                cls._client_socket_list.pop(socket_id)
+                cls._client_thread_list.pop(socket_id)
+                client_socket.close()
+                
+                if cls._special_handler_list["client_disconnect"] is not None:
+                    cls._print_log("_client_handler()", "Calling client_disconnect special handler for socket id {}.".format(socket_id))
+                    cls._special_handler_list["client_disconnect"](socket_id)
+
+                break
 
         cls._print_log("_client_handler()", "Thread of socket id {} has been terminated.".format(socket_id))
 
@@ -193,7 +206,7 @@ class WebsocketServer:
                     "data"   : {}
                 }
 
-                self._client_socket_thread_list[client_socket_id] = {
+                self._client_thread_list[client_socket_id] = {
                     "status" : 1,
                     "thread" : client_thread
                 }
