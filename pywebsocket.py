@@ -61,13 +61,14 @@ class WebsocketServer:
 
             if not data:
                 cls._print_log("_client_handler()", "Socket id {} has left from server.".format(socket_id))
-                cls._close_client_socket(socket_dict["id"])
+                cls._close_client_socket(socket_id)
                 break
             else:
                 try:
                     client_data = WebsocketServer._decode_packet(data)
-                except ValueError:
-                    cls._close_client_socket(socket_dict["id"])
+                except ValueError as ex:
+                    cls._print_log("_client_handler()", "Socket id {} sent an inappropriate packet. Closing connection. ({})".format(socket_id, str(ex)))
+                    cls._close_client_socket(socket_id)
                     break
 
         cls._print_log("_client_handler()", "Thread of socket id {} has been terminated.".format(socket_id))
