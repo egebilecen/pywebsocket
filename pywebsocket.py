@@ -243,6 +243,7 @@ class WebsocketServer:
 
                 # Not a valid request since method to generate websocket handshake returned nothing
                 if handshake == b"":
+                    self._print_log("start()", "Connection {}:{} didn't send a valid handshake request. Closing connection.".format(addr[0], addr[1]))
                     conn.close()
                     continue
 
