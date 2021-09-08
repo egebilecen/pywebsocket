@@ -67,7 +67,8 @@ class WebsocketServer:
                 try:
                     client_data = WebsocketServer._decode_packet(data)
                 except ValueError:
-                    pass
+                    cls._close_client_socket(socket_dict["id"])
+                    break
 
         cls._print_log("_client_handler()", "Thread of socket id {} has been terminated.".format(socket_id))
         cls._client_thread_list.pop(socket_id)
