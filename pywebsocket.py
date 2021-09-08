@@ -154,14 +154,14 @@ class WebsocketServer:
         LEN    = (header >> 0)  & 0x7F
 
         # Received unknown OPCODE
-        if   OPCODE >= 0x01 and OPCODE <= 0x0F:
-            raise ValueError("Unknown OPCODE")
+        if   OPCODE < 0x01 and OPCODE > 0x0F:
+            raise ValueError("Unknown OPCODE 0x{:02x}".format(OPCODE))
         elif OPCODE == 0x08:
             raise ValueError("Closing connection")
 
         # Client must send masked frame
         if MASK != 1:
-            raise ValueError("Client must send masked frames")
+            raise ValueError("Client must send masked frames (MASK != 1)")
 
     def _print_log(self, title, msg) -> None:
         if self._debug:
