@@ -23,8 +23,8 @@ class WebsocketServer:
     def __init__(self,
                  ip                 : str  = "",
                  port               : int  = 3630,
-                 debug              : bool = False,
-                 client_buffer_size : int  = 2048) -> None:
+                 client_buffer_size : int  = 2048,
+                 debug              : bool = False) -> None:
         # Server Variables
         self._server             = None
         self._ip                 = ip
