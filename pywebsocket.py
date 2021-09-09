@@ -146,8 +146,9 @@ class WebsocketServer:
         return ret_val
 
     @staticmethod
-    def _decode_packet(packet : bytes) -> Any:
+    def _decode_packet(packet : bytes) -> bytes:
         header = struct.unpack("!H", packet[:2])[0]
+        packet = packet[2:]
 
         FIN    = (header >> 15) & 0x01
         RSV1   = (header >> 14) & 0x01
@@ -166,6 +167,24 @@ class WebsocketServer:
         # Client must send masked frame
         if MASK != 1:
             raise ValueError("Client must send masked frames (MASK != 1)")
+
+        if   LEN == 126: 
+            LEN = struct.unpack("!H", packet[:2])
+            packet = packet[2:]
+        elif LEN == 127:
+            LEN = struct.unpack("!Q", packet[:8])
+            packet = packet[8:]
+
+        MASK_KEY = packet[:4]
+        packet   = packet[4:]
+
+        payload      = packet[:LEN]
+        payload_data = []
+
+        for i, byte in enumerate(payload):
+            payload_data.append(byte ^ MASK_KEY[i % 4])
+
+        return payload_data
 
     def _print_log(self, title, msg) -> None:
         if self._debug:
