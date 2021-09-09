@@ -48,12 +48,13 @@ class WebsocketServer:
     @staticmethod
     def _client_handler(cls       : "WebsocketServer",
                         socket_id : int) -> None:
-        cls._print_log("_client_handler()", "A new thread has been started for socket id {}.".format(socket_id))
+        LOG_TITLE = "_client_handler() - [Socket ID: {}]".format(socket_id)
+        cls._print_log(LOG_TITLE, "A new thread has been started for the socket.")
         socket_dict   = cls._client_socket_list[socket_id]
         client_socket = socket_dict["socket"]
 
         if cls._special_handler_list["client_connect"] is not None:
-            cls._print_log("_client_handler()", "Calling \"client_connect\" special handler for socket id {}.".format(socket_id))
+            cls._print_log(LOG_TITLE, "Calling \"client_connect\" special handler for the socket.")
             cls._special_handler_list["client_connect"](socket_dict)
 
         while cls._is_running \
@@ -61,22 +62,23 @@ class WebsocketServer:
             data = client_socket.recv(cls._client_buffer_size)
 
             if not data:
-                cls._print_log("_client_handler()", "Socket id {} has left from server.".format(socket_id))
+                cls._print_log(LOG_TITLE, "The socket has left from server.")
                 cls._close_client_socket(socket_id)
                 break
             else:
                 try:
                     client_data = WebsocketServer._decode_packet(data)
+                    cls._print_log(LOG_TITLE, "The socket has sent {} bytes long packet.".format(len(client_data)))
                 except ValueError as ex:
                     if str(ex) != "Closing connection":
-                        cls._print_log("_client_handler()", "Socket id {} sent an inappropriate. Closing connection. ({})".format(socket_id, str(ex)))
+                        cls._print_log(LOG_TITLE, "The socket has sent an inappropriate packet. Closing connection. ({})".format(str(ex)))
                     else:
-                        cls._print_log("_client_handler()", "Socket id {} has left from server. (PACKET RELATED: {})".format(socket_id, str(ex)))
+                        cls._print_log(LOG_TITLE, "The socket has left from server. (PACKET RELATED: {})".format(str(ex)))
                     
                     cls._close_client_socket(socket_id)
                     break
 
-        cls._print_log("_client_handler()", "Thread of socket id {} has been terminated.".format(socket_id))
+        cls._print_log(LOG_TITLE, "The socket's thread has been terminated.")
         cls._client_thread_list.pop(socket_id)
 
     @staticmethod
