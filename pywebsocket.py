@@ -70,7 +70,7 @@ class WebsocketServer:
                     if str(ex) != "Closing connection":
                         cls._print_log("_client_handler()", "Socket id {} sent an inappropriate. Closing connection. ({})".format(socket_id, str(ex)))
                     else:
-                        cls._print_log("_client_handler()", "Socket id {} has left from server.".format(socket_id))
+                        cls._print_log("_client_handler()", "Socket id {} has left from server. (PACKET RELATED: {})".format(socket_id, str(ex)))
                     
                     cls._close_client_socket(socket_id)
                     break
@@ -169,10 +169,10 @@ class WebsocketServer:
             raise ValueError("Client must send masked frames (MASK != 1)")
 
         if   LEN == 126: 
-            LEN = struct.unpack("!H", packet[:2])
+            LEN = struct.unpack("!H", packet[:2])[0]
             packet = packet[2:]
         elif LEN == 127:
-            LEN = struct.unpack("!Q", packet[:8])
+            LEN = struct.unpack("!Q", packet[:8])[0]
             packet = packet[8:]
 
         MASK_KEY = packet[:4]
