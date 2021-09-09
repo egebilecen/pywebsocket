@@ -15,25 +15,28 @@ import json
 import threading
 
 class WebsocketServer:
-    MAGIC_NUMBER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+    MAGIC_NUMBER  = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+    ENCODING_TYPE = "utf-8" 
 
     class FrameType:
         TEXT_FRAME   = 1
         BINARY_FRAME = 2
 
     def __init__(self,
-                 ip                 : str  = "",
-                 port               : int  = 3630,
-                 client_buffer_size : int  = 2048,
-                 debug              : bool = False) -> None:
+                 ip                  : str  = "",
+                 port                : int  = 3630,
+                 client_buffer_size  : int  = 2048,
+                 pass_data_as_string : bool = False,
+                 debug               : bool = False) -> None:
         # Server Variables
-        self._server             = None
-        self._ip                 = ip
-        self._port               = port
-        self._addr               = (self._ip, self._port)
-        self._thread_list        = {}
-        self._is_running         = False
-        self._debug              = debug
+        self._server              = None
+        self._ip                  = ip
+        self._port                = port
+        self._addr                = (self._ip, self._port)
+        self._thread_list         = {}
+        self._is_running          = False
+        self._pass_data_as_string = pass_data_as_string
+        self._debug               = debug
 
         # Client Variables
         self._client_socket_list = {}
@@ -76,6 +79,8 @@ class WebsocketServer:
                 try:
                     client_data = WebsocketServer._decode_packet(data)
                     cls._print_log(LOG_TITLE, "The socket has sent {} bytes long packet.".format(len(client_data)))
+
+                    if cls._pass_data_as_string: client_data = client_data.decode(WebsocketServer.ENCODING_TYPE)
 
                     if cls._special_handler_list["client_data"] is not None:
                         cls._print_log(LOG_TITLE, "Calling \"client_data\" special handler for the socket.")
@@ -365,7 +370,7 @@ class WebsocketServer:
     def send_string(self,
                     socket_id : int,
                     str       : str) -> None:
-        self.send_data(socket_id, str.encode(), WebsocketServer.FrameType.TEXT_FRAME)
+        self.send_data(socket_id, str.encode(WebsocketServer.ENCODING_TYPE), WebsocketServer.FrameType.TEXT_FRAME)
 
     def send_json(self,
                   socket_id : int,
