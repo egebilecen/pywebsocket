@@ -61,7 +61,7 @@ class WebsocketServer:
 
         if cls._special_handler_list["client_connect"] is not None:
             cls._print_log(LOG_TITLE, "Calling \"client_connect\" special handler for the socket.")
-            cls._special_handler_list["client_connect"](self, socket_dict)
+            cls._special_handler_list["client_connect"](cls, socket_dict)
 
         while cls._is_running \
         and   cls._client_thread_list[socket_id]["status"] == 1:
