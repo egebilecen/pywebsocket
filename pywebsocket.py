@@ -151,7 +151,7 @@ class WebsocketServer:
 
     @staticmethod
     def _encode_data(data : bytes) -> bytes:
-        packet   = b""
+        packet   = bytearray()
         data_len = len(data)
 
         FIN    = 0b10000000
@@ -163,20 +163,20 @@ class WebsocketServer:
         EXT_64 = 0x7F
         HEADER = FIN | RSV1 | RSV2 | RSV3 | OPCODE
 
-        packet += HEADER
+        packet.append(HEADER)
 
         if   data_len <= 125:
-            packet += data_len
+            packet.append(data_len)
         elif data_len <= 0xFFFF:
-            packet += EXT_16
-            packet += struct.pack("!H", data_len)
+            packet.append(EXT_16)
+            packet.extend(struct.pack("!H", data_len))
         elif data_len <= 0xFFFFFFFFFFFFFFFF:
-            packet += EXT_64
-            packet += struct.pack("!Q", data_len)
+            packet.append(EXT_64)
+            packet.extend(struct.pack("!Q", data_len))
         else:
             raise ValueError("Data length can't be bigger than 0xFFFFFFFFFFFFFFFF.")
 
-        packet.append(data)
+        packet.extend(data)
 
         return bytes(packet)
         
