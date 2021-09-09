@@ -78,7 +78,7 @@ class WebsocketServer:
 
                     if cls._special_handler_list["client_data"] is not None:
                         cls._print_log(LOG_TITLE, "Calling \"client_data\" special handler for the socket.")
-                        cls._special_handler_list["client_data"](socket_dict)
+                        cls._special_handler_list["client_data"](socket_dict, client_data)
                 except ValueError as ex:
                     if str(ex) != "Closing connection":
                         cls._print_log(LOG_TITLE, "The socket has sent an inappropriate packet. Closing connection. ({})".format(str(ex)))
