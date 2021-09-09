@@ -61,7 +61,7 @@ class WebsocketServer:
 
         if cls._special_handler_list["client_connect"] is not None:
             cls._print_log(LOG_TITLE, "Calling \"client_connect\" special handler for the socket.")
-            cls._special_handler_list["client_connect"](socket_dict)
+            cls._special_handler_list["client_connect"](self, socket_dict)
 
         while cls._is_running \
         and   cls._client_thread_list[socket_id]["status"] == 1:
@@ -78,7 +78,7 @@ class WebsocketServer:
 
                     if cls._special_handler_list["client_data"] is not None:
                         cls._print_log(LOG_TITLE, "Calling \"client_data\" special handler for the socket.")
-                        cls._special_handler_list["client_data"](socket_dict, client_data)
+                        cls._special_handler_list["client_data"](cls, socket_dict, client_data)
                 except ValueError as ex:
                     if str(ex) != "Closing connection":
                         cls._print_log(LOG_TITLE, "The socket has sent an inappropriate packet. Closing connection. ({})".format(str(ex)))
@@ -259,7 +259,7 @@ class WebsocketServer:
         if  call_special_handler \
         and self._special_handler_list["client_disconnect"] is not None:
             self._print_log("_close_client_socket()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
-            self._special_handler_list["client_disconnect"](socket_dict)
+            self._special_handler_list["client_disconnect"](self, socket_dict)
 
     """
         Public Method(s)
@@ -291,7 +291,7 @@ class WebsocketServer:
 
         if self._special_handler_list["loop"] is not None:
             self._print_log("start()", "Starting special handler \"loop\".")
-            self._special_handler_list["loop"](self._socket_list)
+            self._special_handler_list["loop"](self)
 
         self._is_running = True
 
