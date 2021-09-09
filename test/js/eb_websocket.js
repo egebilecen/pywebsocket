@@ -9,17 +9,7 @@ function EB_Websocket(host,port, debug){
         debug       : debug,
         handlers    : {},
         onMessage : function(obj){
-            var data;
-            try{
-                data = JSON.parse(obj.data);
-            }
-            catch(err){
-                data = {where:"null",data:{}};
-            }
-            if(EB_Websocket.handlers.hasOwnProperty(data.where))
-                EB_Websocket.handlers[data.where](data.data);
-            else
-                if(EB_Websocket.debug) console.error("Couldn't find handler for \""+data.where+"\".");
+            console.log(obj);
         },
         close : function(){
             EB_Websocket.socket.close();

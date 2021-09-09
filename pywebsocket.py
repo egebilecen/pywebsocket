@@ -16,6 +16,10 @@ import threading
 class WebsocketServer:
     MAGIC_NUMBER = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
+    class FrameType:
+        TEXT_FRAME   = 1
+        BINARY_FRAME = 2
+
     def __init__(self,
                  ip                 : str  = "",
                  port               : int  = 3630,
@@ -150,7 +154,8 @@ class WebsocketServer:
         return ret_val
 
     @staticmethod
-    def _encode_data(data : bytes) -> bytes:
+    def _encode_data(data       : bytes, 
+                     frame_type : "WebsocketServer.FrameType" = FrameType.TEXT_FRAME) -> bytes:
         packet   = bytearray()
         data_len = len(data)
 
@@ -158,7 +163,7 @@ class WebsocketServer:
         RSV1   = 0b00000000
         RSV2   = 0b00000000
         RSV3   = 0b00000000
-        OPCODE = 0b00000010
+        OPCODE = 0b00000001 if frame_type == WebsocketServer.FrameType.TEXT_FRAME else 0b00000010
         EXT_16 = 0x7E
         EXT_64 = 0x7F
         HEADER = FIN | RSV1 | RSV2 | RSV3 | OPCODE
