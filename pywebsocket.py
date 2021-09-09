@@ -43,7 +43,8 @@ class WebsocketServer:
         self._special_handler_list = {
             "loop"              : None,
             "client_connect"    : None,
-            "client_disconnect" : None
+            "client_disconnect" : None,
+            "client_data"       : None
         }
 
     """
@@ -74,6 +75,10 @@ class WebsocketServer:
                 try:
                     client_data = WebsocketServer._decode_packet(data)
                     cls._print_log(LOG_TITLE, "The socket has sent {} bytes long packet.".format(len(client_data)))
+
+                    if cls._special_handler_list["client_data"] is not None:
+                        cls._print_log(LOG_TITLE, "Calling \"client_data\" special handler for the socket.")
+                        cls._special_handler_list["client_data"](socket_dict)
                 except ValueError as ex:
                     if str(ex) != "Closing connection":
                         cls._print_log(LOG_TITLE, "The socket has sent an inappropriate packet. Closing connection. ({})".format(str(ex)))
