@@ -49,6 +49,9 @@ function EB_Websocket(host,port, debug){
             var re_data = encodeURIComponent(JSON.stringify({where: name, data: data}));
             EB_Websocket.socket.send(re_data);
         },
+        emit2 : function(data){
+            EB_Websocket.socket.send(data);
+        },
         release : function(key){ //release the handler for this key
             if(typeof EB_Websocket.handlers[key] !== "undefined")
             {
@@ -75,6 +78,7 @@ function EB_Websocket(host,port, debug){
         setDisconnectEvent : EB_Websocket.setDisconnectEvent,
         on : EB_Websocket.on,
         emit : EB_Websocket.emit,
+        emit2 : EB_Websocket.emit2,
         release : EB_Websocket.release,
         getStatus : function(){
             return EB_Websocket.status;
