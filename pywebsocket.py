@@ -226,7 +226,9 @@ class WebsocketServer:
 
         return payload_data
 
-    def _print_log(self, title, msg) -> None:
+    def _print_log(self, 
+                   title : str, 
+                   msg   : str) -> None:
         if self._debug:
             print("pywebsocket - {} - {}".format(title, msg))
 
