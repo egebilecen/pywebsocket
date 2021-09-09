@@ -4,13 +4,14 @@
     TODO  : Section 5.4, Section 5.5.2, Section 5.5.3, Section 7
 """
 
-from typing import Callable, Any
+from typing import Callable, Union
 from random import randint
 from sys    import maxsize as MAX_UINT_VALUE
 import socket
 import base64
 import hashlib
 import struct
+import json
 import threading
 
 class WebsocketServer:
@@ -261,6 +262,11 @@ class WebsocketServer:
             self._print_log("_close_client_socket()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
             self._special_handler_list["client_disconnect"](self, socket_dict)
 
+    def _check_socket_id(self, 
+                         socket_id : int) -> None:
+        if socket_id not in self._client_socket_list:
+            raise KeyError("Socket id {} not in client socket list.".format(socket_id))
+
     """
         Public Method(s)
     """
@@ -346,3 +352,33 @@ class WebsocketServer:
 
         handshake_thread.daemon = False
         handshake_thread.start()
+
+    def send_data(self, 
+                  socket_id  : int,
+                  data       : bytes,
+                  frame_type : "WebsocketServer.FrameType" = FrameType.BINARY_FRAME) -> None:
+        self._check_socket_id(socket_id)
+
+        socket = self._client_socket_list[self._client_socket_list]["socket"]
+        socket.send(WebsocketServer._encode_data(data, frame_type))
+
+    def send_string(self,
+                    socket_id : int,
+                    str       : str) -> None:
+        self.send_data(socket_id, str.encode(), WebsocketServer.FrameType.TEXT_FRAME)
+
+    def send_json(self,
+                  socket_id : int,
+                  dict      : dict) -> None:
+        self.send_string(socket_id, json.dumps(dict))
+
+    def send_to_all(self,
+                    send_func : Callable,
+                    data      : Union[bytes, str, dict]) -> None:
+        if  send_func != self.send_data   \
+        and send_func != self.send_string \
+        and send_func != self.send_json:
+            raise ValueError("Unknown function given")
+
+        for socket_id in self._client_socket_list:
+            send_func(socket_id, data)
