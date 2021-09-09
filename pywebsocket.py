@@ -230,12 +230,12 @@ class WebsocketServer:
         packet   = packet[4:]
 
         payload      = packet[:LEN]
-        payload_data = []
+        payload_data = bytearray()
 
         for i, byte in enumerate(payload):
             payload_data.append(byte ^ MASK_KEY[i % 4])
 
-        return payload_data
+        return bytes(payload_data)
 
     def _print_log(self, 
                    title : str, 
