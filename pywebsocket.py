@@ -1,6 +1,7 @@
 """
     Author: Ege Bilecen
     Date  : 06.09.2021
+    TODO  : Section 5.4, Section 5.5.2, Section 5.5.3, Section 7
 """
 
 from typing import Callable, Any
@@ -80,7 +81,7 @@ class WebsocketServer:
 
     @staticmethod
     def _create_handshake(http_request : bytes) -> bytes:
-        http_data = WebsocketServer._parse_http_request(http_request.decode("ascii"))
+        http_data = WebsocketServer._parse_http_request(http_request.decode())
 
         # ----| HTTP Request Validity Checks |----
         # (https://datatracker.ietf.org/doc/html/rfc6455#section-4.1)
@@ -116,9 +117,9 @@ class WebsocketServer:
         if len(websocket_key_decoded) != 16:                   return b""
 
         sha1 = hashlib.sha1()
-        sha1.update((websocket_key + WebsocketServer.MAGIC_NUMBER).encode("ascii"))
+        sha1.update((websocket_key + WebsocketServer.MAGIC_NUMBER).encode())
         sha1_bytes = sha1.digest()
-        handshake_key = base64.b64encode(sha1_bytes).decode("ascii")
+        handshake_key = base64.b64encode(sha1_bytes).decode()
 
         handshake_response  = "HTTP/1.1 101 Switching Protocols\r\n"
         handshake_response += "Upgrade: websocket\r\n"
@@ -126,7 +127,7 @@ class WebsocketServer:
         handshake_response += "Sec-WebSocket-Accept: {}\r\n".format(handshake_key)
         handshake_response += "\r\n"
 
-        return handshake_response.encode("ascii")
+        return handshake_response.encode()
 
     @staticmethod
     def _parse_http_request(http_request : str) -> dict[str, str]:
@@ -144,6 +145,10 @@ class WebsocketServer:
             ret_val[key_val_split[0]] = key_val_split[1].strip()
 
         return ret_val
+
+    @staticmethod
+    def _encode_packet(packet : bytes) -> bytes:
+        pass
 
     @staticmethod
     def _decode_packet(packet : bytes) -> bytes:
