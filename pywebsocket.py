@@ -49,6 +49,7 @@ class WebsocketServer:
     def _client_handler(cls       : "WebsocketServer",
                         socket_id : int) -> None:
         LOG_TITLE = "_client_handler() - [Socket ID: {}]".format(socket_id)
+
         cls._print_log(LOG_TITLE, "A new thread has been started for the socket.")
         socket_dict   = cls._client_socket_list[socket_id]
         client_socket = socket_dict["socket"]
@@ -149,9 +150,36 @@ class WebsocketServer:
         return ret_val
 
     @staticmethod
-    def _encode_packet(packet : bytes) -> bytes:
-        pass
+    def _encode_data(data : bytes) -> bytes:
+        packet   = b""
+        data_len = len(data)
 
+        FIN    = 0b10000000
+        RSV1   = 0b00000000
+        RSV2   = 0b00000000
+        RSV3   = 0b00000000
+        OPCODE = 0b00000010
+        EXT_16 = 0x7E
+        EXT_64 = 0x7F
+        HEADER = FIN | RSV1 | RSV2 | RSV3 | OPCODE
+
+        packet += HEADER
+
+        if   data_len <= 125:
+            packet += data_len
+        elif data_len <= 0xFFFF:
+            packet += EXT_16
+            packet += struct.pack("!H", data_len)
+        elif data_len <= 0xFFFFFFFFFFFFFFFF:
+            packet += EXT_64
+            packet += struct.pack("!Q", data_len)
+        else:
+            raise ValueError("Data length can't be bigger than 0xFFFFFFFFFFFFFFFF.")
+
+        packet.append(data)
+
+        return bytes(packet)
+        
     @staticmethod
     def _decode_packet(packet : bytes) -> bytes:
         header = struct.unpack("!H", packet[:2])[0]
