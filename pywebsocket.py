@@ -392,7 +392,7 @@ class WebsocketServer:
                     "thread" : client_thread
                 }
 
-                client_thread.daemon = False
+                client_thread.daemon = True
                 client_thread.start()
         
             self._print_log("start() - impl()", "Closing the server.")
@@ -405,7 +405,7 @@ class WebsocketServer:
             "thread" : handshake_thread
         }
 
-        handshake_thread.daemon = False
+        handshake_thread.daemon = True
         handshake_thread.start()
 
     ## Sends the data to socket.
