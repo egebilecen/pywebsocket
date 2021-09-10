@@ -237,7 +237,7 @@ class WebsocketServer:
         return bytes(packet)
     
     """
-        Decodes the packet sent from client.
+        Method that decodes the packet sent from client.
 
         @param packet Packet sent from client.
     """
@@ -283,7 +283,7 @@ class WebsocketServer:
         return bytes(payload_data)
     
     """
-        Prints log to console if debug is enabled.
+        Method that prints log to console if debug is enabled.
 
         @param title Title.
         @param msg Message.
@@ -295,8 +295,8 @@ class WebsocketServer:
             print("pywebsocket - {} - {}".format(title, msg))
 
     """
-        Generates random number between 0 and max UINT value of the running system.
-        @note This method will cause endless loop if there are no available numbers left.
+        Method that generates random number between 0 and max UINT value of the running system.
+        @warning This method will cause endless loop if there are no available numbers left.
     """
     def _generate_socket_id(self) -> int:
         rand_int = randint(0, MAX_UINT_VALUE)
@@ -306,10 +306,16 @@ class WebsocketServer:
 
         return rand_int
 
-    
+    """
+        Method that closes the connection with client.
+
+        @param socket_id Client's given socket ID after sucessful handshake.
+        @param call_special_handler If set to True, "client_disconnect" special handler will
+        be called. If set to False, no special handler will be called.
+    """
     def _close_client_socket(self, 
-                            socket_id            : int,
-                            call_special_handler : bool = True):
+                             socket_id            : int,
+                             call_special_handler : bool = True):
         socket_dict   = self._client_socket_list[socket_id]
         client_socket = self._client_socket_list[socket_id]["socket"]
 
@@ -322,14 +328,17 @@ class WebsocketServer:
             self._print_log("_close_client_socket()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
             self._special_handler_list["client_disconnect"](self, socket_dict)
 
+    """
+        Method that checkes if @param socket_id is a valid socket ID. If not, it throws a
+        KeyError exception.
+
+        @param socket_id Client's given socket ID after sucessful handshake.
+    """
     def _check_socket_id(self, 
                          socket_id : int) -> None:
         if socket_id not in self._client_socket_list:
             raise KeyError("Socket id {} not in client socket list.".format(socket_id))
 
-    """
-        Public Method(s)
-    """
     def set_special_handler(self, 
                             handler_name : str, 
                             func         : Callable) -> None:
