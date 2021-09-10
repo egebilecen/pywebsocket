@@ -1,5 +1,6 @@
 var classpywebsocket_1_1_websocket_server =
 [
+    [ "ClientSocket", "classpywebsocket_1_1_websocket_server_1_1_client_socket.html", "classpywebsocket_1_1_websocket_server_1_1_client_socket" ],
     [ "FrameType", "classpywebsocket_1_1_websocket_server_1_1_frame_type.html", null ],
     [ "__init__", "classpywebsocket_1_1_websocket_server.html#ae8d5323af7b564e2b7c3cef53cd53d3b", null ],
     [ "_check_socket_id", "classpywebsocket_1_1_websocket_server.html#abaed94b25b3b887a44cd2c1b5e65cf9c", null ],

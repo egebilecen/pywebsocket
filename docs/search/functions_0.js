@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['_5f_5finit_5f_5f_0',['__init__',['../classpywebsocket_1_1_websocket_server.html#ae8d5323af7b564e2b7c3cef53cd53d3b',1,'pywebsocket::WebsocketServer']]],
+  ['_5f_5finit_5f_5f_0',['__init__',['../classpywebsocket_1_1_websocket_server_1_1_client_socket.html#a3cfced336b353e3a69a60a6519209c79',1,'pywebsocket.WebsocketServer.ClientSocket.__init__()'],['../classpywebsocket_1_1_websocket_server.html#ae8d5323af7b564e2b7c3cef53cd53d3b',1,'pywebsocket.WebsocketServer.__init__(self, str ip=&quot;&quot;, int port=3630, int client_buffer_size=2048, bool pass_data_as_string=False, bool debug=False)']]],
   ['_5fcheck_5fsocket_5fid_1',['_check_socket_id',['../classpywebsocket_1_1_websocket_server.html#abaed94b25b3b887a44cd2c1b5e65cf9c',1,'pywebsocket::WebsocketServer']]],
   ['_5fclient_5fhandler_2',['_client_handler',['../classpywebsocket_1_1_websocket_server.html#acfe10b8de78f86d779ef6d2fd30a40e7',1,'pywebsocket::WebsocketServer']]],
   ['_5fclose_5fclient_5fsocket_3',['_close_client_socket',['../classpywebsocket_1_1_websocket_server.html#a9f45d4d4412e9f10760c28218b3ad858',1,'pywebsocket::WebsocketServer']]],

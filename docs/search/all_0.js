@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['_5f_5finit_5f_5f_0',['__init__',['../classpywebsocket_1_1_websocket_server.html#ae8d5323af7b564e2b7c3cef53cd53d3b',1,'pywebsocket::WebsocketServer']]],
-  ['_5faddr_1',['_addr',['../classpywebsocket_1_1_websocket_server.html#a51c0d456b84fd8742014d3430527d8db',1,'pywebsocket::WebsocketServer']]],
+  ['_5f_5finit_5f_5f_0',['__init__',['../classpywebsocket_1_1_websocket_server_1_1_client_socket.html#a3cfced336b353e3a69a60a6519209c79',1,'pywebsocket.WebsocketServer.ClientSocket.__init__()'],['../classpywebsocket_1_1_websocket_server.html#ae8d5323af7b564e2b7c3cef53cd53d3b',1,'pywebsocket.WebsocketServer.__init__()']]],
+  ['_5faddr_1',['_addr',['../classpywebsocket_1_1_websocket_server_1_1_client_socket.html#a2605499bd93fa6fa5a6bc50525253460',1,'pywebsocket.WebsocketServer.ClientSocket._addr()'],['../classpywebsocket_1_1_websocket_server.html#a51c0d456b84fd8742014d3430527d8db',1,'pywebsocket.WebsocketServer._addr()']]],
   ['_5fcheck_5fsocket_5fid_2',['_check_socket_id',['../classpywebsocket_1_1_websocket_server.html#abaed94b25b3b887a44cd2c1b5e65cf9c',1,'pywebsocket::WebsocketServer']]],
   ['_5fclient_5fbuffer_5fsize_3',['_client_buffer_size',['../classpywebsocket_1_1_websocket_server.html#a0f09821803410149abbb0ff3c621468b',1,'pywebsocket::WebsocketServer']]],
   ['_5fclient_5fhandler_4',['_client_handler',['../classpywebsocket_1_1_websocket_server.html#acfe10b8de78f86d779ef6d2fd30a40e7',1,'pywebsocket::WebsocketServer']]],
@@ -13,13 +13,15 @@ var searchData=
   ['_5fdecode_5fpacket_10',['_decode_packet',['../classpywebsocket_1_1_websocket_server.html#a232866121ea3804a1473d007642eaf00',1,'pywebsocket::WebsocketServer']]],
   ['_5fencode_5fdata_11',['_encode_data',['../classpywebsocket_1_1_websocket_server.html#a3dac8daf94364a334875c4ce7bda401c',1,'pywebsocket::WebsocketServer']]],
   ['_5fgenerate_5fsocket_5fid_12',['_generate_socket_id',['../classpywebsocket_1_1_websocket_server.html#a1b3ae4a93ccfc24a111448ea250e11b4',1,'pywebsocket::WebsocketServer']]],
-  ['_5fip_13',['_ip',['../classpywebsocket_1_1_websocket_server.html#a0052c279ab1f608bb436f5f7e09a71c5',1,'pywebsocket::WebsocketServer']]],
-  ['_5fis_5frunning_14',['_is_running',['../classpywebsocket_1_1_websocket_server.html#a90d5d2c18e0d73f5e50608c9098976d8',1,'pywebsocket::WebsocketServer']]],
-  ['_5fparse_5fhttp_5frequest_15',['_parse_http_request',['../classpywebsocket_1_1_websocket_server.html#a83f0e66553a37e556bc7e4b87a17ee8f',1,'pywebsocket::WebsocketServer']]],
-  ['_5fpass_5fdata_5fas_5fstring_16',['_pass_data_as_string',['../classpywebsocket_1_1_websocket_server.html#a744d1f4e7e65df94609ec20dfb355675',1,'pywebsocket::WebsocketServer']]],
-  ['_5fport_17',['_port',['../classpywebsocket_1_1_websocket_server.html#a57353c2f2a3739cd6b02789f50136ef5',1,'pywebsocket::WebsocketServer']]],
-  ['_5fprint_5flog_18',['_print_log',['../classpywebsocket_1_1_websocket_server.html#a61696034113cd36bb89f627d0f96eb40',1,'pywebsocket::WebsocketServer']]],
-  ['_5fserver_19',['_server',['../classpywebsocket_1_1_websocket_server.html#afd1f8942fd3cf9e318807587c04c4a23',1,'pywebsocket::WebsocketServer']]],
-  ['_5fspecial_5fhandler_5flist_20',['_special_handler_list',['../classpywebsocket_1_1_websocket_server.html#a9173acbaf8f26a279b8dac995048c8e2',1,'pywebsocket::WebsocketServer']]],
-  ['_5fthread_5flist_21',['_thread_list',['../classpywebsocket_1_1_websocket_server.html#af6fd941a69335deb5d09df3a441232f5',1,'pywebsocket::WebsocketServer']]]
+  ['_5fid_13',['_id',['../classpywebsocket_1_1_websocket_server_1_1_client_socket.html#ad51ea2fab219f566a9c458396c2b4b7e',1,'pywebsocket::WebsocketServer::ClientSocket']]],
+  ['_5fip_14',['_ip',['../classpywebsocket_1_1_websocket_server.html#a0052c279ab1f608bb436f5f7e09a71c5',1,'pywebsocket::WebsocketServer']]],
+  ['_5fis_5frunning_15',['_is_running',['../classpywebsocket_1_1_websocket_server.html#a90d5d2c18e0d73f5e50608c9098976d8',1,'pywebsocket::WebsocketServer']]],
+  ['_5fparse_5fhttp_5frequest_16',['_parse_http_request',['../classpywebsocket_1_1_websocket_server.html#a83f0e66553a37e556bc7e4b87a17ee8f',1,'pywebsocket::WebsocketServer']]],
+  ['_5fpass_5fdata_5fas_5fstring_17',['_pass_data_as_string',['../classpywebsocket_1_1_websocket_server.html#a744d1f4e7e65df94609ec20dfb355675',1,'pywebsocket::WebsocketServer']]],
+  ['_5fport_18',['_port',['../classpywebsocket_1_1_websocket_server.html#a57353c2f2a3739cd6b02789f50136ef5',1,'pywebsocket::WebsocketServer']]],
+  ['_5fprint_5flog_19',['_print_log',['../classpywebsocket_1_1_websocket_server.html#a61696034113cd36bb89f627d0f96eb40',1,'pywebsocket::WebsocketServer']]],
+  ['_5fserver_20',['_server',['../classpywebsocket_1_1_websocket_server.html#afd1f8942fd3cf9e318807587c04c4a23',1,'pywebsocket::WebsocketServer']]],
+  ['_5fsocket_21',['_socket',['../classpywebsocket_1_1_websocket_server_1_1_client_socket.html#a4ccb17b0c9ef119d810d818fbab659f6',1,'pywebsocket::WebsocketServer::ClientSocket']]],
+  ['_5fspecial_5fhandler_5flist_22',['_special_handler_list',['../classpywebsocket_1_1_websocket_server.html#a9173acbaf8f26a279b8dac995048c8e2',1,'pywebsocket::WebsocketServer']]],
+  ['_5fthread_5flist_23',['_thread_list',['../classpywebsocket_1_1_websocket_server.html#af6fd941a69335deb5d09df3a441232f5',1,'pywebsocket::WebsocketServer']]]
 ];

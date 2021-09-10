@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['magic_5fnumber_0',['MAGIC_NUMBER',['../classpywebsocket_1_1_websocket_server.html#a9551fd8bf9b96debf5a7dd7c6f531881',1,'pywebsocket::WebsocketServer']]]
+  ['encoding_5ftype_0',['ENCODING_TYPE',['../classpywebsocket_1_1_websocket_server.html#a125f3c9432311013433c3e267489e687',1,'pywebsocket::WebsocketServer']]]
 ];
