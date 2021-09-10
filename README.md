@@ -6,17 +6,22 @@ Example Server Code: <br>
 ```python
 from pywebsocket import WebsocketServer
 
-def on_client_connect(server, socket):
+def on_client_connect(server : WebsocketServer, 
+                      client : WebsocketServer.ClientSocket) -> None:
     # do stuff
     pass
 
-def on_client_disconnect(server, socket):
+def on_client_disconnect(server : WebsocketServer, 
+                         client : WebsocketServer.ClientSocket) -> None:
     # do more stuff
     pass
 
-def on_client_data(server, socket, data):
+def on_client_data(server : WebsocketServer, 
+                   client : WebsocketServer.ClientSocket,
+                   data) -> None:
     # echo client's message
-    server.send_string(socket["id"], data)
+    print("Received from client:", data)
+    server.send_string(client.get_id(), data)
 
 server = WebsocketServer("192.168.1.2", 3630,
                          client_buffer_size  = 1024,
