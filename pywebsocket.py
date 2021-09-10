@@ -8,7 +8,7 @@
             * Documentation with Doxygen syntax
 """
 
-from typing import Callable, Union
+from typing import Callable, Union, Optional
 from random import randint
 from sys    import maxsize as MAX_UINT_VALUE
 import socket
@@ -203,10 +203,12 @@ class WebsocketServer:
         @param frame_type Type of frame. It can only be TEXT_FRAME or BINARY_FRAME. If data
         sent as a TEXT_FRAME, client will receive data as UTF-8 string. If data sent as a
         BINARY_FRAME, client will receive data as byte array.
+        @param opcode_ovr OPCODE override. OPCODE will be set to this value if value is not None.
     """
     @staticmethod
     def _encode_data(data       : bytes, 
-                     frame_type : "WebsocketServer.FrameType" = FrameType.TEXT_FRAME) -> bytes:
+                     frame_type : "WebsocketServer.FrameType" = FrameType.TEXT_FRAME,
+                     opcode_ovr : Optional[int]               = None) -> bytes:
         packet   = bytearray()
         data_len = len(data)
 
@@ -217,6 +219,9 @@ class WebsocketServer:
         OPCODE = 0b00000001 if frame_type == WebsocketServer.FrameType.TEXT_FRAME else 0b00000010
         EXT_16 = 0x7E
         EXT_64 = 0x7F
+
+        if opcode_ovr is not None: OPCODE = opcode_ovr
+
         HEADER = FIN | RSV1 | RSV2 | RSV3 | OPCODE
 
         packet.append(HEADER)
@@ -319,6 +324,7 @@ class WebsocketServer:
         socket_dict   = self._client_socket_list[socket_id]
         client_socket = self._client_socket_list[socket_id]["socket"]
 
+        client_socket.send(WebsocketServer._encode_data(b"", opcode_ovr = 0x08))
         client_socket.close()
         self._client_socket_list.pop(socket_id)
         self._client_thread_list[socket_id]["status"] = 0
@@ -397,6 +403,7 @@ class WebsocketServer:
                 # Not a valid request since method to generate websocket handshake returned nothing
                 if handshake == b"":
                     self._print_log("start()", "Connection {}:{} didn't send a valid handshake request. Closing connection.".format(addr[0], addr[1]))
+                    conn.send("HTTP/1.1 400 Bad Request".encode())
                     conn.close()
                     continue
 
