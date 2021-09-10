@@ -3,17 +3,6 @@ from random import random
 from urllib.parse import unquote
 import json
 
-# FUNCTIONS
-def find_user_from_id(toFindUserID, user_list):
-    for i, user in enumerate(user_list):
-        if user["userID"] == toFindUserID:
-            return (i, user)
-
-def find_room_from_id(toFindRoomID, room_list):
-    for i, room in enumerate(room_list):
-        if room["roomID"] == toFindRoomID:
-            return (i, room)
-
 # HANDLERS
 def setNickname(server, socket, data):
     if socket["data"]["isTakenNickname"]:
