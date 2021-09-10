@@ -339,6 +339,12 @@ class WebsocketServer:
         if socket_id not in self._client_socket_list:
             raise KeyError("Socket id {} not in client socket list.".format(socket_id))
 
+    """
+        Method that sets the callback function for special handlers.
+
+        @param handler_name Special handler's name.
+        @param func Callback function that will be called upon special cases. (Such as client connect etc.)
+    """
     def set_special_handler(self, 
                             handler_name : str, 
                             func         : Callable) -> None:
@@ -351,9 +357,15 @@ class WebsocketServer:
         self._print_log("set_special_handler()", "Special handler for \"{}\" has been set.".format(handler_name))
         self._special_handler_list[handler_name] = func
 
+    """
+        Method that stops the server.
+    """
     def stop(self) -> None:
         self._is_running = False
 
+    """
+        Method that starts the server.
+    """
     def start(self) -> None:
         self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server.bind(self._addr)
@@ -422,6 +434,13 @@ class WebsocketServer:
         handshake_thread.daemon = False
         handshake_thread.start()
 
+    """
+        Method that sends the data to socket.
+
+        @param socket_id Socket ID of the client that will receive the data.
+        @param data Data that will be sent.
+        @param frame_type Type of frame. See @fn _encode_data for more information.
+    """
     def send_data(self, 
                   socket_id  : int,
                   data       : bytes,
@@ -431,16 +450,37 @@ class WebsocketServer:
         socket = self._client_socket_list[socket_id]["socket"]
         socket.send(WebsocketServer._encode_data(data, frame_type))
 
+    """
+        Method that sends the data as string to socket.
+
+        @param socket_id Socket ID of the client that will receive the data.
+        @param str String that will be sent.
+    """
     def send_string(self,
                     socket_id : int,
                     str       : str) -> None:
         self.send_data(socket_id, str.encode(WebsocketServer.ENCODING_TYPE), WebsocketServer.FrameType.TEXT_FRAME)
 
+    """
+        Method that sends the data as JSON encoded string to socket.
+
+        @param socket_id Socket ID of the client that will receive the data.
+        @param dict Dictionary object that will be encoded as JSON string and sent to client.
+    """
     def send_json(self,
                   socket_id : int,
                   dict      : dict) -> None:
         self.send_string(socket_id, json.dumps(dict))
 
+    """
+        Method that sends the data to all sockets.
+
+        @param send_func Method reference to use to send the data. It can only be reference 
+        to @fn send_data, @fn send_string or @fn send_json. Otherwise method will raise
+        ValueError exception.
+        @param data Data that will be sent. It's type must match with the @param send_func 
+        reference method's.
+    """
     def send_to_all(self,
                     send_func : Callable,
                     data      : Union[bytes, str, dict]) -> None:
