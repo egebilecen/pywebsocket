@@ -12,7 +12,7 @@
               Section 7
 """
 
-from typing import Callable, Union, Optional
+from typing import Callable, Union, Optional, Any
 from random import randint
 from sys    import maxsize as MAX_UINT_VALUE
 import socket
@@ -27,6 +27,37 @@ import threading
 class WebsocketServer:
     MAGIC_NUMBER  = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
     ENCODING_TYPE = "utf-8" 
+
+    ## ClientSocket
+    # Contains the variables for a client socket.
+    class ClientSocket:
+        def __init__(self, 
+                     id     : int,
+                     socket : socket.socket,
+                     addr   : tuple):
+            # Socket ID of client
+            self._id     = id
+
+            # Socket object of client
+            self._socket = socket
+
+            # Address tuple of client
+            self._addr   = addr
+
+            # Dictionary object to hold data in client.
+            self.data    = {}
+
+        ## Gets the socket ID of client.
+        def get_id(self) -> int:
+            return self._id
+
+        ## Gets the socket object of client.
+        def get_socket(self) -> socket.socket:
+            return self._socket
+
+        ## Gets the address pair of client.
+        def get_addr(self) -> tuple:
+            return self._addr
 
     ## FrameType
     # Contains the constants that specifies the frame type.
@@ -80,12 +111,12 @@ class WebsocketServer:
         LOG_TITLE = "_client_handler() - [Socket ID: {}]".format(socket_id)
 
         cls._print_log(LOG_TITLE, "A new thread has been started for the socket.")
-        socket_dict   = cls._client_socket_list[socket_id]
-        client_socket = socket_dict["socket"]
+        client        = cls._client_socket_list[socket_id]
+        client_socket = client.get_socket()
 
         if cls._special_handler_list["client_connect"] is not None:
             cls._print_log(LOG_TITLE, "Calling \"client_connect\" special handler for the socket.")
-            cls._special_handler_list["client_connect"](cls, socket_dict)
+            cls._special_handler_list["client_connect"](cls, client)
 
         while cls._is_running \
         and   cls._client_thread_list[socket_id]["status"] == 1:
@@ -104,7 +135,7 @@ class WebsocketServer:
 
                     if cls._special_handler_list["client_data"] is not None:
                         cls._print_log(LOG_TITLE, "Calling \"client_data\" special handler for the socket.")
-                        cls._special_handler_list["client_data"](cls, socket_dict, client_data)
+                        cls._special_handler_list["client_data"](cls, client, client_data)
                 except ValueError as ex:
                     if str(ex) != "Closing connection":
                         cls._print_log(LOG_TITLE, "The socket has sent an inappropriate packet. Closing connection. ({})".format(str(ex)))
@@ -296,8 +327,8 @@ class WebsocketServer:
     def _close_client_socket(self, 
                              socket_id            : int,
                              call_special_handler : bool = True):
-        socket_dict   = self._client_socket_list[socket_id]
-        client_socket = self._client_socket_list[socket_id]["socket"]
+        client        = self._client_socket_list[socket_id]
+        client_socket = client.get_socket()
 
         client_socket.send(WebsocketServer._encode_data(b"", opcode_ovr = 0x08))
         client_socket.close()
@@ -307,7 +338,7 @@ class WebsocketServer:
         if  call_special_handler \
         and self._special_handler_list["client_disconnect"] is not None:
             self._print_log("_close_client_socket()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
-            self._special_handler_list["client_disconnect"](self, socket_dict)
+            self._special_handler_list["client_disconnect"](self, client)
 
     ## Checkes if socket_id is a valid socket ID. If not, it throws a KeyError exception.
     # @param socket_id Client's given socket ID after sucessful handshake.
@@ -379,12 +410,7 @@ class WebsocketServer:
                 client_socket_id = self._generate_socket_id()
                 client_thread    = threading.Thread(target=WebsocketServer._client_handler, args=(self, client_socket_id))
                 
-                self._client_socket_list[client_socket_id] = {
-                    "id"     : client_socket_id,
-                    "socket" : conn,
-                    "addr"   : addr,
-                    "data"   : {}
-                }
+                self._client_socket_list[client_socket_id] = WebsocketServer.ClientSocket(client_socket_id, conn, addr)
 
                 self._client_thread_list[client_socket_id] = {
                     "id"     : client_socket_id,
@@ -418,7 +444,7 @@ class WebsocketServer:
                   frame_type : "WebsocketServer.FrameType" = FrameType.BINARY_FRAME) -> None:
         self._check_socket_id(socket_id)
 
-        socket = self._client_socket_list[socket_id]["socket"]
+        socket = self._client_socket_list[socket_id].get_socket()
         socket.send(WebsocketServer._encode_data(data, frame_type))
 
     ## Sends the data as string to socket.
