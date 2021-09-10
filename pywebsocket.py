@@ -1,5 +1,10 @@
 """
     Author: Ege Bilecen
+    Available Special Handlers:
+    * loop
+    * client_connect
+    * client_disconnect
+    * client_data
     TODO  : RFC6455
             * Section 5.4
               Section 5.5.2
