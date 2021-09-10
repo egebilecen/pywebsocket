@@ -1,7 +1,12 @@
 """
     Author: Ege Bilecen
-    Date  : 06.09.2021
-    TODO  : Section 5.4, Section 5.5.2, Section 5.5.3, Section 7
+    TODO  : RFC6455
+            * Section 5.4
+              Section 5.5.2
+              Section 5.5.3
+              Section 7
+            * Add Rich interface (statistics etc.)
+            * Documentation with Doxygen syntax
 """
 
 from typing import Callable, Union
