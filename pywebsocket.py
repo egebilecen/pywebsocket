@@ -5,7 +5,6 @@
               Section 5.5.2
               Section 5.5.3
               Section 7
-            * Documentation with Doxygen syntax
 """
 
 from typing import Callable, Union, Optional
