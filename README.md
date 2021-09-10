@@ -15,8 +15,8 @@ def on_client_disconnect(server, socket):
     pass
 
 def on_client_data(server, socket, data):
-    # do much more stuff
-    pass
+    # echo client's message
+    server.send_string(socket["id"], data)
 
 server = WebsocketServer("192.168.1.2", 3630,
                          client_buffer_size  = 1024,
