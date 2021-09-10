@@ -475,7 +475,7 @@ class WebsocketServer:
     """
         Method that sends the data to all sockets.
 
-        @param send_func Method reference to call to send the data. It can only be reference 
+        @param send_func Method reference to call for sending the data. It can only be reference 
         to @fn send_data, @fn send_string or @fn send_json. Otherwise method will raise
         ValueError exception.
         @param data Data that will be sent. It's type must match with the @param send_func 
