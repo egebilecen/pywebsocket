@@ -5,7 +5,6 @@
               Section 5.5.2
               Section 5.5.3
               Section 7
-            * Add Rich interface (statistics etc.)
             * Documentation with Doxygen syntax
 """
 
@@ -19,6 +18,10 @@ import struct
 import json
 import threading
 
+"""
+    @class WebsocketServer
+    @brief Simple Websocket Server.
+"""
 class WebsocketServer:
     MAGIC_NUMBER  = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
     ENCODING_TYPE = "utf-8" 
@@ -27,6 +30,17 @@ class WebsocketServer:
         TEXT_FRAME   = 1
         BINARY_FRAME = 2
 
+    """
+        Constructor of WebsocketServer.
+        
+        @param ip IP address of the server.
+        @param port Port number that will be used for communication.
+        @param client_buffer_size Buffer size for the data sent from client.
+        @param pass_data_as_string Data sent from client will be passed as UTF-8 string 
+        to "client_data" special handler's data param if set to True. Otherwise a byte 
+        array will be passed.
+        @param debug Enable/disable debug messages.
+    """
     def __init__(self,
                  ip                  : str  = "",
                  port                : int  = 3630,
@@ -57,7 +71,9 @@ class WebsocketServer:
         }
 
     """
-        Private Method(s)
+        Method that will handle data sent from client.
+
+        @param socket_id Client's given socket ID after sucessful handshake.
     """
     @staticmethod
     def _client_handler(cls       : "WebsocketServer",
@@ -102,6 +118,11 @@ class WebsocketServer:
         cls._print_log(LOG_TITLE, "The socket's thread has been terminated.")
         cls._client_thread_list.pop(socket_id)
 
+    """
+        Method that creates handshake from HTTP request of client.
+
+        @param http_request HTTP request sent from client.
+    """
     @staticmethod
     def _create_handshake(http_request : bytes) -> bytes:
         http_data = WebsocketServer._parse_http_request(http_request.decode())
@@ -152,6 +173,11 @@ class WebsocketServer:
 
         return handshake_response.encode()
 
+    """
+        Method that parses HTTP request into key/value (dict) pair.
+
+        @param http_request HTTP request string.
+    """
     @staticmethod
     def _parse_http_request(http_request : str) -> dict[str, str]:
         request_split = [elem for elem in http_request.split("\r\n") if elem]
@@ -169,6 +195,15 @@ class WebsocketServer:
 
         return ret_val
 
+    """
+        Method that encodes the data that will be sent to client according to websocket 
+        packet structure and rules.
+
+        @param data Data that will be sent to client.
+        @param frame_type Type of frame. It can only be TEXT_FRAME or BINARY_FRAME. If data
+        sent as a TEXT_FRAME, client will receive data as UTF-8 string. If data sent as a
+        BINARY_FRAME, client will receive data as byte array.
+    """
     @staticmethod
     def _encode_data(data       : bytes, 
                      frame_type : "WebsocketServer.FrameType" = FrameType.TEXT_FRAME) -> bytes:
@@ -200,7 +235,12 @@ class WebsocketServer:
         packet.extend(data)
 
         return bytes(packet)
-        
+    
+    """
+        Decodes the packet sent from client.
+
+        @param packet Packet sent from client.
+    """
     @staticmethod
     def _decode_packet(packet : bytes) -> bytes:
         header = struct.unpack("!H", packet[:2])[0]
@@ -241,13 +281,23 @@ class WebsocketServer:
             payload_data.append(byte ^ MASK_KEY[i % 4])
 
         return bytes(payload_data)
+    
+    """
+        Prints log to console if debug is enabled.
 
+        @param title Title.
+        @param msg Message.
+    """
     def _print_log(self, 
                    title : str, 
                    msg   : str) -> None:
         if self._debug:
             print("pywebsocket - {} - {}".format(title, msg))
 
+    """
+        Generates random number between 0 and max UINT value of the running system.
+        @note This method will cause endless loop if there are no available numbers left.
+    """
     def _generate_socket_id(self) -> int:
         rand_int = randint(0, MAX_UINT_VALUE)
 
