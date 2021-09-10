@@ -12,7 +12,7 @@
               Section 7
 """
 
-from typing import Callable, Union, Optional, Any
+from typing import Callable, Union, Optional
 from random import randint
 from sys    import maxsize as MAX_UINT_VALUE
 import socket
