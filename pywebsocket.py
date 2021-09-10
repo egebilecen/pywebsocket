@@ -364,7 +364,7 @@ class WebsocketServer:
                   frame_type : "WebsocketServer.FrameType" = FrameType.BINARY_FRAME) -> None:
         self._check_socket_id(socket_id)
 
-        socket = self._client_socket_list[self._client_socket_list]["socket"]
+        socket = self._client_socket_list[socket_id]["socket"]
         socket.send(WebsocketServer._encode_data(data, frame_type))
 
     def send_string(self,
