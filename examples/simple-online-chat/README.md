@@ -1,4 +1,4 @@
-This is a simple example of online chat system using websocket server.
+This is a simple example of online chat system using websocket server. Be sure to update first line of "server/server.py" if pywebsocket folder contains only class files and not the whole repo.
 <br><br>
 <b>Note:</b>
 Server side code is very dirty since it is just written very quickly to serve as an example. Your eyes may bleed, you are warned. 

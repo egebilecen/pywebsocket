@@ -18,16 +18,13 @@ class DATA_LENGTH_ERROR(Exception):
 class UNKNOWN_OPCODE(Exception):
     pass
 
-
 ## Raised when closing OPCODE detected.
 class CLOSE_CONNECTION(Exception):
     pass
 
-
 ## Raised when unmasked frame detected.
 class MASK_ERROR(Exception):
     pass
-
 
 ## Raised when socket id is not in client socket list.
 class INVALID_SOCKET_ID(Exception):
