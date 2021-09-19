@@ -18,6 +18,7 @@ import json
 import threading
 
 from . import custom_types
+from . import exceptions
 
 ## WebsocketClient
 # Contains the variables for a client that connected to the server.
@@ -53,8 +54,14 @@ class WebsocketClient:
 ## WebsocketServer
 # Simple Websocket Server.
 class WebsocketServer:
-    MAGIC_NUMBER  = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-    ENCODING_TYPE = "utf-8" 
+    ## Globally Unique Identifier specified in RFC6455 The Websocket Protocol.
+    MAGIC_NUMBER      = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+
+    ## Encoding type for all string messages.
+    ENCODING_TYPE     = "utf-8"
+
+    ## Supported websocket version by server.
+    WEBSOCKET_VERSION = 13
 
     ## Constructor of WebsocketServer.
     # @param ip IP address of the server.
@@ -115,73 +122,84 @@ class WebsocketServer:
 
             if not data:
                 cls._print_log(LOG_TITLE, "The socket has left from server.")
-                cls._close_client_socket(socket_id)
                 break
             else:
                 try:
                     client_data = WebsocketServer._decode_packet(data)
-                    cls._print_log(LOG_TITLE, "The socket has sent {} bytes long packet.".format(len(client_data)))
-
-                    if cls._pass_data_as_string: client_data = client_data.decode(WebsocketServer.ENCODING_TYPE)
-
-                    if cls._special_handler_list["client_data"] is not None:
-                        cls._print_log(LOG_TITLE, "Calling \"client_data\" special handler for the socket.")
-                        cls._special_handler_list["client_data"](cls, client, client_data)
-                except ValueError as ex:
-                    if str(ex) != "Closing connection":
-                        cls._print_log(LOG_TITLE, "The socket has sent an inappropriate packet. Closing connection. ({})".format(str(ex)))
-                    else:
-                        cls._print_log(LOG_TITLE, "The socket has left from server. (PACKET RELATED: {})".format(str(ex)))
-                    
-                    cls._close_client_socket(socket_id)
+                except exceptions.CLOSE_CONNECTION:
+                    cls._print_log(LOG_TITLE, "The socket has left from server. (Sent close connection)")
+                    break
+                except exceptions.UNKNOWN_OPCODE:
+                    cls._print_log(LOG_TITLE, "The socket has left from server. (Received unknown OPCODE)")
+                    break
+                except exceptions.MASK_ERROR:
+                    cls._print_log(LOG_TITLE, "The socket has left from server. (Received unmasked frame)")
+                    break
+                except Exception as ex:
+                    cls._print_log(LOG_TITLE, "The socket has left from server. (UNKNOWN EXCEPTION: {})".format(str(ex)))
                     break
 
+                cls._print_log(LOG_TITLE, "The socket has sent {} bytes long packet.".format(len(client_data)))
+
+                if cls._pass_data_as_string: client_data = client_data.decode(WebsocketServer.ENCODING_TYPE)
+
+                if cls._special_handler_list["client_data"] is not None:
+                    cls._print_log(LOG_TITLE, "Calling \"client_data\" special handler for the socket.")
+                    cls._special_handler_list["client_data"](cls, client, client_data)
+        
+        cls._close_client_socket(socket_id)
         cls._print_log(LOG_TITLE, "The socket's thread has been terminated.")
-        cls._client_thread_list.pop(socket_id)
 
     ## Creates handshake from HTTP request of client.
     # @param http_request HTTP request sent from client.
     @staticmethod
     def _create_handshake(http_request : bytes) -> bytes:
-        http_data = WebsocketServer._parse_http_request(http_request.decode())
+        http_data = WebsocketServer._parse_http_request(http_request.decode(WebsocketServer.ENCODING_TYPE))
 
         # ----| HTTP Request Validity Checks |----
         # (https://datatracker.ietf.org/doc/html/rfc6455#section-4.1)
         # HTTP request must be GET request
-        if http_data["Method"] != "GET":                       return b""
+        if http_data["Method"] != "GET":                       raise exceptions.HANDSHAKE.INVALID_METHOD("HTTP request must be GET request. Received {} request.".format(http_data["Method"]))
 
         # HTTP version must be at least 1.1
-        if float(http_data["Version"].split("/")[1]) < 1.1:    return b""
+        if float(http_data["Version"].split("/")[1]) < 1.1:    raise exceptions.HANDSHAKE.HTTP_VERSION_ERROR("HTTP version must be at least 1.1. Client's HTTP version: {}.".format(http_data["Version"]))
 
         # HTTP request must contain "Host" field
-        if "Host" not in http_data:                            return b""
+        if "Host" not in http_data:                            raise exceptions.HANDSHAKE.REQUIRED_FIELD_MISSING("Host field is missing.")
 
         # HTTP request must contain "Upgrade" field with the "websocket" keyword included
         # in it's value
-        if "Upgrade" not in http_data:                         return b""
-        elif "websocket" not in http_data["Upgrade"].lower():  return b""
+        if "Upgrade" not in http_data:                         raise exceptions.HANDSHAKE.REQUIRED_FIELD_MISSING("Upgrade field is missing.")
+        elif "websocket" not in http_data["Upgrade"].lower():  raise exceptions.HANDSHAKE.FIELD_VALUE_MISMATCH("Upgrade field's value must be \"websocket\".")
 
         # HTTP request must include "Connection" field
-        if "Connection" not in http_data:                      return b""
-        elif "upgrade" not in http_data["Connection"].lower(): return b""
+        if "Connection" not in http_data:                      raise exceptions.HANDSHAKE.REQUIRED_FIELD_MISSING("Connection field is missing.")
+        elif "upgrade" not in http_data["Connection"].lower(): raise exceptions.HANDSHAKE.FIELD_VALUE_MISMATCH("Connection field's value include \"upgrade\".")
 
         # HTTP request must include "Sec-WebSocket-Key" field
-        if "Sec-WebSocket-Key" not in http_data:               return b""
+        if "Sec-WebSocket-Key" not in http_data:               raise exceptions.HANDSHAKE.REQUIRED_FIELD_MISSING("Sec-WebSocket-Key field is missing.")
 
-        # HTTP request must include "Sec-WebSocket-Version" field and it's value must be 13
-        if "Sec-WebSocket-Version" not in http_data:           return b""
-        elif http_data["Sec-WebSocket-Version"] != "13":       return b""
+        # HTTP request must include "Sec-WebSocket-Version" field and it's value must match
+        # with server's.
+        try:
+            websocket_version_list = [int(elem.strip()) for elem in http_data["Sec-WebSocket-Version"].split(",") if elem]
+        except:
+            raise exceptions.HANDSHAKE.FIELD_VALUE_MISMATCH("Client's websocket version doesn't match with server's. (Server's version: {}, Client's version: {})".format(WebsocketServer.WEBSOCKET_VERSION, http_data["Sec-WebSocket-Version"]))
+
+        if "Sec-WebSocket-Version" not in http_data:                          raise exceptions.HANDSHAKE.REQUIRED_FIELD_MISSING("Sec-WebSocket-Version field is missing.")
+        elif WebsocketServer.WEBSOCKET_VERSION not in websocket_version_list: raise exceptions.HANDSHAKE.FIELD_VALUE_MISMATCH("Client's websocket version doesn't match with server's. (Server's version: {}, Client's version: {})".format(WebsocketServer.WEBSOCKET_VERSION, http_data["Sec-WebSocket-Version"]))
 
         # Sec-WebSocket-Key field's value must be 16 bytes when decoded
         websocket_key         = http_data["Sec-WebSocket-Key"]
         websocket_key_decoded = base64.b64decode(websocket_key)
 
-        if len(websocket_key_decoded) != 16:                   return b""
+        if len(websocket_key_decoded) != 16: raise ValueError("Sec-WebSocket-Key field's value must be 16 bytes when decoded.")
 
         sha1 = hashlib.sha1()
-        sha1.update((websocket_key + WebsocketServer.MAGIC_NUMBER).encode())
+        sha1.update((websocket_key + WebsocketServer.MAGIC_NUMBER).encode(WebsocketServer.ENCODING_TYPE))
         sha1_bytes = sha1.digest()
-        handshake_key = base64.b64encode(sha1_bytes).decode()
+
+        handshake_key = base64.b64encode(sha1_bytes).decode(WebsocketServer.ENCODING_TYPE)
 
         handshake_response  = "HTTP/1.1 101 Switching Protocols\r\n"
         handshake_response += "Upgrade: websocket\r\n"
@@ -189,7 +207,7 @@ class WebsocketServer:
         handshake_response += "Sec-WebSocket-Accept: {}\r\n".format(handshake_key)
         handshake_response += "\r\n"
 
-        return handshake_response.encode()
+        return handshake_response.encode(WebsocketServer.ENCODING_TYPE)
 
     ## Parses HTTP request into key/value (dict) pair.
     # @param http_request HTTP request string.
@@ -214,6 +232,7 @@ class WebsocketServer:
     # @param data Data that will be sent to client.
     # @param frame_type Type of frame. It can only be FrameType.TEXT_FRAME or FrameType.BINARY_FRAME. If data sent as a FrameType.TEXT_FRAME, client will receive data as UTF-8 string. If data sent as a FrameType.BINARY_FRAME, client will receive data as byte array.
     # @param opcode_ovr OPCODE override. OPCODE will be set to this value if value is not None.
+    # @warning Raises exceptions.DATA_LENGTH_ERROR exception if data's length is bigger than 0xFFFFFFFFFFFFFFFF.
     @staticmethod
     def _encode_data(data       : bytes, 
                      frame_type : custom_types.FrameType = custom_types.FrameType.TEXT_FRAME,
@@ -244,7 +263,7 @@ class WebsocketServer:
             packet.append(EXT_64)
             packet.extend(struct.pack("!Q", data_len))
         else:
-            raise ValueError("Data length can't be bigger than 0xFFFFFFFFFFFFFFFF.")
+            raise exceptions.DATA_LENGTH_ERROR("Data length can't be bigger than 0xFFFFFFFFFFFFFFFF.")
 
         packet.extend(data)
 
@@ -252,6 +271,7 @@ class WebsocketServer:
     
     ## Decodes the packet sent from client.
     # @param packet Packet sent from client.
+    # @warning Raises exceptions.UNKNOWN_OPCODE exception if an unknown OPCODE is detected. Raises exceptions.CLOSE_CONNECTION exception if close connection OPCODE is detected. Raises exceptions.MASK_ERROR exception if unmasked frame is detected.
     @staticmethod
     def _decode_packet(packet : bytes) -> bytes:
         header = struct.unpack("!H", packet[:2])[0]
@@ -267,13 +287,13 @@ class WebsocketServer:
 
         # Received unknown OPCODE
         if   OPCODE < 0x01 and OPCODE > 0x0F:
-            raise ValueError("Unknown OPCODE 0x{:02x}".format(OPCODE))
+            raise exceptions.UNKNOWN_OPCODE("Unknown OPCODE 0x{:02x}.".format(OPCODE))
         elif OPCODE == 0x08:
-            raise ValueError("Closing connection")
+            raise exceptions.CLOSE_CONNECTION
 
         # Client must send masked frame
         if MASK != 1:
-            raise ValueError("Client must send masked frames (MASK != 1)")
+            raise exceptions.MASK_ERROR
 
         if   LEN == 126: 
             LEN = struct.unpack("!H", packet[:2])[0]
@@ -323,20 +343,23 @@ class WebsocketServer:
 
         client_socket.send(WebsocketServer._encode_data(b"", opcode_ovr = 0x08))
         client_socket.close()
+
         self._client_socket_list.pop(socket_id)
+        
         self._client_thread_list[socket_id]["status"] = 0
+        self._client_thread_list.pop(socket_id)
         
         if  call_special_handler \
         and self._special_handler_list["client_disconnect"] is not None:
             self._print_log("_close_client_socket()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
             self._special_handler_list["client_disconnect"](self, client)
 
-    ## Checkes if socket_id is a valid socket ID. If not, it throws a KeyError exception.
+    ## Checkes if socket_id is a valid socket ID. If not, raises exceptions.INVALID_SOCKET_ID exception.
     # @param socket_id Client's given socket ID after sucessful handshake.
     def _check_socket_id(self, 
                          socket_id : int) -> None:
         if socket_id not in self._client_socket_list:
-            raise KeyError("Socket id {} not in client socket list.".format(socket_id))
+            raise exceptions.INVALID_SOCKET_ID("Socket id {} not in client socket list.".format(socket_id))
 
     """
         --- Public Method(s)
@@ -344,6 +367,7 @@ class WebsocketServer:
     ## Sets the callback function for special handlers.
     # @param handler_name Special handler's name.
     # @param func Callback function that will be called upon special cases. (Such as client connect etc.)
+    # @warning Raises KeyError exception if handler_name not in special handlers list. Raises exceptions.INVALID_METHOD exception if func paramater is not a callable.
     def set_special_handler(self, 
                             handler_name : str, 
                             func         : Callable) -> None:
@@ -351,7 +375,7 @@ class WebsocketServer:
             raise KeyError("\"{}\" not in special handlers list.".format(handler_name))
 
         if not callable(func):
-            raise TypeError("Param func is not callable.")
+            raise exceptions.INVALID_METHOD("Param func is not callable.")
 
         self._print_log("set_special_handler()", "Special handler for \"{}\" has been set.".format(handler_name))
         self._special_handler_list[handler_name] = func
@@ -387,12 +411,12 @@ class WebsocketServer:
                 self._print_log("start()", "New connection: {}:{}.".format(addr[0], addr[1]))
 
                 handshake_request = conn.recv(2048)
-                handshake = WebsocketServer._create_handshake(handshake_request)
 
-                # Not a valid request since method to generate websocket handshake returned nothing
-                if handshake == b"":
-                    self._print_log("start()", "Connection {}:{} didn't send a valid handshake request. Closing connection.".format(addr[0], addr[1]))
-                    conn.send("HTTP/1.1 400 Bad Request".encode())
+                try:
+                    handshake = WebsocketServer._create_handshake(handshake_request)
+                except Exception as ex:
+                    self._print_log("start()", "Connection {}:{} didn't send a valid handshake request. Closing connection. ({})".format(addr[0], addr[1], str(ex)))
+                    conn.send("HTTP/1.1 400 Bad Request".encode(WebsocketServer.ENCODING_TYPE))
                     conn.close()
                     continue
 
@@ -455,7 +479,7 @@ class WebsocketServer:
         self.send_string(socket_id, json.dumps(dict))
 
     ## Sends the data to all sockets.
-    # @param send_func Method reference to call for sending the data. It can only be reference to WebsocketServer.send_data, WebsocketServer.send_string or WebsocketServer.send_json. Otherwise method will raise ValueError exception.
+    # @param send_func Method reference to call for sending the data. It can only be reference to WebsocketServer.send_data, WebsocketServer.send_string or WebsocketServer.send_json. Otherwise method will raise exceptions.INVALID_SEND_METHOD exception.
     # @param data Data that will be sent. It's type must match with the send_func reference method's.
     def send_to_all(self,
                     send_func : Callable,
@@ -463,7 +487,7 @@ class WebsocketServer:
         if  send_func != self.send_data   \
         and send_func != self.send_string \
         and send_func != self.send_json:
-            raise ValueError("Unknown function given")
+            raise exceptions.INVALID_SEND_METHOD("Unknown send method given.")
 
         for socket_id in self._client_socket_list:
             send_func(socket_id, data)
