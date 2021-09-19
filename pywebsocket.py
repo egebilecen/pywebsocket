@@ -422,7 +422,7 @@ class WebsocketServer:
             "thread" : handshake_thread
         }
 
-        handshake_thread.daemon = True
+        handshake_thread.daemon = False
         handshake_thread.start()
 
     ## Sends the data to socket.
