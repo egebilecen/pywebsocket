@@ -22,6 +22,8 @@ import struct
 import json
 import threading
 
+import custom_types
+
 ## WebsocketServer
 # Simple Websocket Server.
 class WebsocketServer:
@@ -58,12 +60,6 @@ class WebsocketServer:
         ## Gets the address pair of client.
         def get_addr(self) -> tuple:
             return self._addr
-
-    ## FrameType
-    # Contains the constants that specifies the frame type.
-    class FrameType:
-        TEXT_FRAME   = 1
-        BINARY_FRAME = 2
 
     ## Constructor of WebsocketServer.
     # @param ip IP address of the server.
@@ -225,8 +221,8 @@ class WebsocketServer:
     # @param opcode_ovr OPCODE override. OPCODE will be set to this value if value is not None.
     @staticmethod
     def _encode_data(data       : bytes, 
-                     frame_type : "WebsocketServer.FrameType" = FrameType.TEXT_FRAME,
-                     opcode_ovr : Optional[int]               = None) -> bytes:
+                     frame_type : custom_types.FrameType = custom_types.FrameType.TEXT_FRAME,
+                     opcode_ovr : Optional[int]          = None) -> bytes:
         packet   = bytearray()
         data_len = len(data)
 
@@ -234,7 +230,7 @@ class WebsocketServer:
         RSV1   = 0b00000000
         RSV2   = 0b00000000
         RSV3   = 0b00000000
-        OPCODE = 0b00000001 if frame_type == WebsocketServer.FrameType.TEXT_FRAME else 0b00000010
+        OPCODE = 0b00000001 if frame_type == custom_types.FrameType.TEXT_FRAME else 0b00000010
         EXT_16 = 0x7E
         EXT_64 = 0x7F
 
@@ -441,7 +437,7 @@ class WebsocketServer:
     def send_data(self, 
                   socket_id  : int,
                   data       : bytes,
-                  frame_type : "WebsocketServer.FrameType" = FrameType.BINARY_FRAME) -> None:
+                  frame_type : custom_types.FrameType = custom_types.FrameType.BINARY_FRAME) -> None:
         self._check_socket_id(socket_id)
 
         socket = self._client_socket_list[socket_id].get_socket()
@@ -453,7 +449,7 @@ class WebsocketServer:
     def send_string(self,
                     socket_id : int,
                     str       : str) -> None:
-        self.send_data(socket_id, str.encode(WebsocketServer.ENCODING_TYPE), WebsocketServer.FrameType.TEXT_FRAME)
+        self.send_data(socket_id, str.encode(WebsocketServer.ENCODING_TYPE), custom_types.FrameType.TEXT_FRAME)
 
     ## Sends the data as JSON encoded string to socket.
     # @param socket_id Socket ID of the client that will receive the data.
