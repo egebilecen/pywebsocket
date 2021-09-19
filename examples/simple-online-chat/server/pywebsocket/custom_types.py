@@ -3,7 +3,14 @@
 """
 
 ## FrameType
-# Contains the constants that specifies the frame type.
+# Contains the constants that specifies the frame type. Can be used as OPCODE.
 class FrameType:
-    TEXT_FRAME   = 1
-    BINARY_FRAME = 2
+    TEXT_FRAME   = 0x01
+    BINARY_FRAME = 0x02
+
+## ControlFrame
+# Contains the constants that specifies the control frames. Can be used as OPCODE.
+class ControlFrame:
+    CLOSE_FRAME = 0x08
+    PING_FRAME  = 0x09
+    PONG_FRAME  = 0x0A

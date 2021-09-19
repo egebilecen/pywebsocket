@@ -7,6 +7,7 @@
     * client_data
 """
 
+from types import FrameType
 from typing import Callable, Union, Optional
 from random import randint
 from sys    import maxsize as MAX_UINT_VALUE
@@ -125,7 +126,8 @@ class WebsocketServer:
                 break
             else:
                 try:
-                    client_data = WebsocketServer._decode_packet(data)
+                    decoded_packet = WebsocketServer._decode_packet(data)
+                    client_data    = decoded_packet["data"]
                 except exceptions.CLOSE_CONNECTION:
                     cls._print_log(LOG_TITLE, "The socket has left from server. (Sent close connection)")
                     break
@@ -139,7 +141,14 @@ class WebsocketServer:
                     cls._print_log(LOG_TITLE, "The socket has left from server. (UNKNOWN EXCEPTION: {})".format(str(ex)))
                     break
 
-                cls._print_log(LOG_TITLE, "The socket has sent {} bytes long packet.".format(len(client_data)))
+                if decoded_packet["OPCODE"] == custom_types.ControlFrame.PING_FRAME:
+                    cls._print_log(LOG_TITLE, "The socket has sent ping frame. Sending pong frame in response.")
+                    client_socket.send(WebsocketServer._encode_data(client_data, custom_types.ControlFrame.PONG_FRAME))
+                    continue
+
+                if client_data == b"": continue
+
+                cls._print_log(LOG_TITLE, "The socket has sent {} bytes long data.".format(len(client_data)))
 
                 if cls._pass_data_as_string: client_data = client_data.decode(WebsocketServer.ENCODING_TYPE)
 
@@ -181,13 +190,14 @@ class WebsocketServer:
 
         # HTTP request must include "Sec-WebSocket-Version" field and it's value must match
         # with server's.
+        version_error_str = "Client's websocket version doesn't match with server's. (Server's version: {}, Client's version: {})".format(WebsocketServer.WEBSOCKET_VERSION, http_data["Sec-WebSocket-Version"])
         try:
             websocket_version_list = [int(elem.strip()) for elem in http_data["Sec-WebSocket-Version"].split(",") if elem]
         except:
-            raise exceptions.HANDSHAKE.FIELD_VALUE_MISMATCH("Client's websocket version doesn't match with server's. (Server's version: {}, Client's version: {})".format(WebsocketServer.WEBSOCKET_VERSION, http_data["Sec-WebSocket-Version"]))
+            raise exceptions.HANDSHAKE.WEBSOCKET_VERSION_ERROR(version_error_str)
 
         if "Sec-WebSocket-Version" not in http_data:                          raise exceptions.HANDSHAKE.REQUIRED_FIELD_MISSING("Sec-WebSocket-Version field is missing.")
-        elif WebsocketServer.WEBSOCKET_VERSION not in websocket_version_list: raise exceptions.HANDSHAKE.FIELD_VALUE_MISMATCH("Client's websocket version doesn't match with server's. (Server's version: {}, Client's version: {})".format(WebsocketServer.WEBSOCKET_VERSION, http_data["Sec-WebSocket-Version"]))
+        elif WebsocketServer.WEBSOCKET_VERSION not in websocket_version_list: raise exceptions.HANDSHAKE.WEBSOCKET_VERSION_ERROR(version_error_str)
 
         # Sec-WebSocket-Key field's value must be 16 bytes when decoded
         websocket_key         = http_data["Sec-WebSocket-Key"]
@@ -230,13 +240,13 @@ class WebsocketServer:
 
     ## Encodes the data that will be sent to client according to websocket packet structure and rules.
     # @param data Data that will be sent to client.
-    # @param frame_type Type of frame. It can only be FrameType.TEXT_FRAME or FrameType.BINARY_FRAME. If data sent as a FrameType.TEXT_FRAME, client will receive data as UTF-8 string. If data sent as a FrameType.BINARY_FRAME, client will receive data as byte array.
-    # @param opcode_ovr OPCODE override. OPCODE will be set to this value if value is not None.
-    # @warning Raises exceptions.DATA_LENGTH_ERROR exception if data's length is bigger than 0xFFFFFFFFFFFFFFFF.
+    # @param opcode OPCODE of frame.
+    # @note If OPCODE set to FrameType.TEXT_FRAME, client will receive data as UTF-8 string. If OPCODE set to FrameType.BINARY_FRAME, client will receive data as byte array.
+    # @warning - Raises exceptions.DATA_LENGTH_ERROR exception if data's length is bigger than 0xFFFFFFFFFFFFFFFF.
+    # @warning - Do not forget that all control frames MUST have a payload length of 125 bytes or less and MUST NOT be fragmented.
     @staticmethod
-    def _encode_data(data       : bytes, 
-                     frame_type : custom_types.FrameType = custom_types.FrameType.TEXT_FRAME,
-                     opcode_ovr : Optional[int]          = None) -> bytes:
+    def _encode_data(data   : bytes, 
+                     opcode : int) -> bytes:
         packet   = bytearray()
         data_len = len(data)
 
@@ -244,11 +254,9 @@ class WebsocketServer:
         RSV1   = 0b00000000
         RSV2   = 0b00000000
         RSV3   = 0b00000000
-        OPCODE = 0b00000001 if frame_type == custom_types.FrameType.TEXT_FRAME else 0b00000010
+        OPCODE = opcode
         EXT_16 = 0x7E
         EXT_64 = 0x7F
-
-        if opcode_ovr is not None: OPCODE = opcode_ovr
 
         HEADER = FIN | RSV1 | RSV2 | RSV3 | OPCODE
 
@@ -311,7 +319,11 @@ class WebsocketServer:
         for i, byte in enumerate(payload):
             payload_data.append(byte ^ MASK_KEY[i % 4])
 
-        return bytes(payload_data)
+        return {
+            "FIN"    : FIN,
+            "OPCODE" : OPCODE,
+            "data"   : bytes(payload_data)
+        }
     
     ## prints log to console if debug is enabled.
     # @param title Title.
@@ -334,16 +346,18 @@ class WebsocketServer:
 
     ## Closes the connection with client.
     # @param socket_id Client's given socket ID after sucessful handshake.
+    # @param status_code Status code for close frame. Pre-defined codes can be find in [here](https://datatracker.ietf.org/doc/html/rfc6455#section-7.4.1).
     # @param call_special_handler If set to True, "client_disconnect" special handler will be called. If set to False, no special handler will be called.
     def _close_client_socket(self, 
                              socket_id            : int,
+                             status_code          : int  = 1000,
                              call_special_handler : bool = True):
         client        = self._client_socket_list[socket_id]
         client_socket = client.get_socket()
 
-        client_socket.send(WebsocketServer._encode_data(b"", opcode_ovr = 0x08))
+        client_socket.send(WebsocketServer._encode_data(struct.pack("!H", status_code), custom_types.ControlFrame.CLOSE_FRAME))
+        
         client_socket.close()
-
         self._client_socket_list.pop(socket_id)
         
         self._client_thread_list[socket_id]["status"] = 0
@@ -354,7 +368,7 @@ class WebsocketServer:
             self._print_log("_close_client_socket()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
             self._special_handler_list["client_disconnect"](self, client)
 
-    ## Checkes if socket_id is a valid socket ID. If not, raises exceptions.INVALID_SOCKET_ID exception.
+    ## Checks if socket_id is a valid socket ID. If not, raises exceptions.INVALID_SOCKET_ID exception.
     # @param socket_id Client's given socket ID after sucessful handshake.
     def _check_socket_id(self, 
                          socket_id : int) -> None:
@@ -414,9 +428,14 @@ class WebsocketServer:
 
                 try:
                     handshake = WebsocketServer._create_handshake(handshake_request)
+                except exceptions.HANDSHAKE.WEBSOCKET_VERSION_ERROR:
+                    self._print_log("start()", "Connection {}:{}'s websocket version doesn't match with server's. Closing connection.".format(addr[0], addr[1]))
+                    conn.send(("HTTP/1.1 400 Bad Request\r\nSec-WebSocket-Version: {}\r\n\r\n".format(WebsocketServer.WEBSOCKET_VERSION)).encode(WebsocketServer.ENCODING_TYPE))
+                    conn.close()
+                    continue
                 except Exception as ex:
                     self._print_log("start()", "Connection {}:{} didn't send a valid handshake request. Closing connection. ({})".format(addr[0], addr[1], str(ex)))
-                    conn.send("HTTP/1.1 400 Bad Request".encode(WebsocketServer.ENCODING_TYPE))
+                    conn.send("HTTP/1.1 400 Bad Request\r\n\r\n".encode(WebsocketServer.ENCODING_TYPE))
                     conn.close()
                     continue
 

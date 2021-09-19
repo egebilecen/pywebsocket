@@ -42,6 +42,10 @@ class HANDSHAKE:
     ## Raised when HTTP version doesn't match with requirements.
     class HTTP_VERSION_ERROR(Exception):
         pass
+    
+    ## Raised when client's websocket version doesn't supported by server.
+    class WEBSOCKET_VERSION_ERROR(Exception):
+        pass
 
     ## Raised when request doesn't have required field.
     class REQUIRED_FIELD_MISSING(Exception):
