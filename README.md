@@ -41,3 +41,4 @@ Please refer to <a href="https://egebilecen.github.io/pywebsocket/namespaces.htm
 
 <b>Notes:</b>
 * Doesn't support <b>HTTPS</b> connection.
+* Doesn't support <b>fragmenting</b> yet.
