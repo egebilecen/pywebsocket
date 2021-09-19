@@ -32,3 +32,21 @@ class MASK_ERROR(Exception):
 ## Raised when socket id is not in client socket list.
 class INVALID_SOCKET_ID(Exception):
     pass
+
+## Exceptions related with opening handshake.
+class HANDSHAKE:
+    ## Raised when invalid HTTP method detected.
+    class INVALID_METHOD(Exception):
+        pass
+    
+    ## Raised when HTTP version doesn't match with requirements.
+    class HTTP_VERSION_ERROR(Exception):
+        pass
+
+    ## Raised when request doesn't have required field.
+    class REQUIRED_FIELD_MISSING(Exception):
+        pass
+    
+    ## Raised when a field's value doesn't match with expected value.
+    class FIELD_VALUE_MISMATCH(Exception):
+        pass
