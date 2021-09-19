@@ -40,3 +40,7 @@ while 1: pass
 
 # Documentation
 Please refer to <a href="https://egebilecen.github.io/pywebsocket/classpywebsocket_1_1_websocket_server.html">here</a> for class documentation.
+<hr>
+
+<b>Notes:</b>
+* Doesn't support <b>HTTPS</b> connection.
