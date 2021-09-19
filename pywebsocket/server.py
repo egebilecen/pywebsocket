@@ -144,7 +144,7 @@ class WebsocketServer:
     # @param http_request HTTP request sent from client.
     @staticmethod
     def _create_handshake(http_request : bytes) -> bytes:
-        http_data = WebsocketServer._parse_http_request(http_request.decode())
+        http_data = WebsocketServer._parse_http_request(http_request.decode(WebsocketServer.ENCODING_TYPE))
 
         # ----| HTTP Request Validity Checks |----
         # (https://datatracker.ietf.org/doc/html/rfc6455#section-4.1)
@@ -180,9 +180,9 @@ class WebsocketServer:
         if len(websocket_key_decoded) != 16:                   return b""
 
         sha1 = hashlib.sha1()
-        sha1.update((websocket_key + WebsocketServer.MAGIC_NUMBER).encode())
+        sha1.update((websocket_key + WebsocketServer.MAGIC_NUMBER).encode(WebsocketServer.ENCODING_TYPE))
         sha1_bytes = sha1.digest()
-        handshake_key = base64.b64encode(sha1_bytes).decode()
+        handshake_key = base64.b64encode(sha1_bytes).decode(WebsocketServer.ENCODING_TYPE)
 
         handshake_response  = "HTTP/1.1 101 Switching Protocols\r\n"
         handshake_response += "Upgrade: websocket\r\n"
@@ -190,7 +190,7 @@ class WebsocketServer:
         handshake_response += "Sec-WebSocket-Accept: {}\r\n".format(handshake_key)
         handshake_response += "\r\n"
 
-        return handshake_response.encode()
+        return handshake_response.encode(WebsocketServer.ENCODING_TYPE)
 
     ## Parses HTTP request into key/value (dict) pair.
     # @param http_request HTTP request string.
@@ -393,7 +393,7 @@ class WebsocketServer:
                 # Not a valid request since method to generate websocket handshake returned nothing
                 if handshake == b"":
                     self._print_log("start()", "Connection {}:{} didn't send a valid handshake request. Closing connection.".format(addr[0], addr[1]))
-                    conn.send("HTTP/1.1 400 Bad Request".encode())
+                    conn.send("HTTP/1.1 400 Bad Request".encode(WebsocketServer.ENCODING_TYPE))
                     conn.close()
                     continue
 
