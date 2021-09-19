@@ -242,7 +242,8 @@ class WebsocketServer:
     # @param data Data that will be sent to client.
     # @param opcode OPCODE of frame.
     # @note If OPCODE set to FrameType.TEXT_FRAME, client will receive data as UTF-8 string. If OPCODE set to FrameType.BINARY_FRAME, client will receive data as byte array.
-    # @warning Raises exceptions.DATA_LENGTH_ERROR exception if data's length is bigger than 0xFFFFFFFFFFFFFFFF.
+    # @warning - Raises exceptions.DATA_LENGTH_ERROR exception if data's length is bigger than 0xFFFFFFFFFFFFFFFF.
+    # @warning - Do not forget that all control frames MUST have a payload length of 125 bytes or less and MUST NOT be fragmented.
     @staticmethod
     def _encode_data(data   : bytes, 
                      opcode : int) -> bytes:
