@@ -36,7 +36,7 @@ server.start()
 ```
 
 # Documentation
-Please refer to <a href="https://egebilecen.github.io/pywebsocket/classpywebsocket_1_1_websocket_server.html">here</a> for class documentation.
+Please refer to <a href="https://egebilecen.github.io/pywebsocket/namespaces.html">here</a> for class documentation.
 <hr>
 
 <b>Notes:</b>
