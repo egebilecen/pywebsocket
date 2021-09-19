@@ -1,11 +1,11 @@
 var indexSectionsWithContent =
 {
-  0: "_bcdefgmopstw",
-  1: "cfw",
-  2: "pt",
-  3: "pt",
-  4: "_gos",
-  5: "_bdemst"
+  0: "_bcdefgmstw",
+  1: "fw",
+  2: "cs",
+  3: "cs",
+  4: "_gs",
+  5: "_bdemt"
 };
 
 var indexSectionNames =

@@ -5,11 +5,6 @@
     * client_connect
     * client_disconnect
     * client_data
-    TODO  : RFC6455
-            * Section 5.4
-              Section 5.5.2
-              Section 5.5.3
-              Section 7
 """
 
 from typing import Callable, Union, Optional
@@ -22,48 +17,44 @@ import struct
 import json
 import threading
 
+from . import custom_types
+
+## WebsocketClient
+# Contains the variables for a client that connected to the server.
+class WebsocketClient:
+    def __init__(self, 
+                 id     : int,
+                 socket : socket.socket,
+                 addr   : tuple):
+        ## Socket ID of client
+        self._id     = id
+
+        ## Socket object of client
+        self._socket = socket
+
+        ## Address tuple of client
+        self._addr   = addr
+
+        ## Dictionary object to hold data in client.
+        self.data    = {}
+
+    ## Gets the socket ID of client.
+    def get_id(self) -> int:
+        return self._id
+
+    ## Gets the socket object of client.
+    def get_socket(self) -> socket.socket:
+        return self._socket
+
+    ## Gets the address pair of client.
+    def get_addr(self) -> tuple:
+        return self._addr
+
 ## WebsocketServer
 # Simple Websocket Server.
 class WebsocketServer:
     MAGIC_NUMBER  = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
     ENCODING_TYPE = "utf-8" 
-
-    ## ClientSocket
-    # Contains the variables for a client socket.
-    class ClientSocket:
-        def __init__(self, 
-                     id     : int,
-                     socket : socket.socket,
-                     addr   : tuple):
-            # Socket ID of client
-            self._id     = id
-
-            # Socket object of client
-            self._socket = socket
-
-            # Address tuple of client
-            self._addr   = addr
-
-            # Dictionary object to hold data in client.
-            self.data    = {}
-
-        ## Gets the socket ID of client.
-        def get_id(self) -> int:
-            return self._id
-
-        ## Gets the socket object of client.
-        def get_socket(self) -> socket.socket:
-            return self._socket
-
-        ## Gets the address pair of client.
-        def get_addr(self) -> tuple:
-            return self._addr
-
-    ## FrameType
-    # Contains the constants that specifies the frame type.
-    class FrameType:
-        TEXT_FRAME   = 1
-        BINARY_FRAME = 2
 
     ## Constructor of WebsocketServer.
     # @param ip IP address of the server.
@@ -225,8 +216,8 @@ class WebsocketServer:
     # @param opcode_ovr OPCODE override. OPCODE will be set to this value if value is not None.
     @staticmethod
     def _encode_data(data       : bytes, 
-                     frame_type : "WebsocketServer.FrameType" = FrameType.TEXT_FRAME,
-                     opcode_ovr : Optional[int]               = None) -> bytes:
+                     frame_type : custom_types.FrameType = custom_types.FrameType.TEXT_FRAME,
+                     opcode_ovr : Optional[int]          = None) -> bytes:
         packet   = bytearray()
         data_len = len(data)
 
@@ -234,7 +225,7 @@ class WebsocketServer:
         RSV1   = 0b00000000
         RSV2   = 0b00000000
         RSV3   = 0b00000000
-        OPCODE = 0b00000001 if frame_type == WebsocketServer.FrameType.TEXT_FRAME else 0b00000010
+        OPCODE = 0b00000001 if frame_type == custom_types.FrameType.TEXT_FRAME else 0b00000010
         EXT_16 = 0x7E
         EXT_64 = 0x7F
 
@@ -410,7 +401,7 @@ class WebsocketServer:
                 client_socket_id = self._generate_socket_id()
                 client_thread    = threading.Thread(target=WebsocketServer._client_handler, args=(self, client_socket_id))
                 
-                self._client_socket_list[client_socket_id] = WebsocketServer.ClientSocket(client_socket_id, conn, addr)
+                self._client_socket_list[client_socket_id] = WebsocketClient(client_socket_id, conn, addr)
 
                 self._client_thread_list[client_socket_id] = {
                     "id"     : client_socket_id,
@@ -431,7 +422,7 @@ class WebsocketServer:
             "thread" : handshake_thread
         }
 
-        handshake_thread.daemon = True
+        handshake_thread.daemon = False
         handshake_thread.start()
 
     ## Sends the data to socket.
@@ -441,7 +432,7 @@ class WebsocketServer:
     def send_data(self, 
                   socket_id  : int,
                   data       : bytes,
-                  frame_type : "WebsocketServer.FrameType" = FrameType.BINARY_FRAME) -> None:
+                  frame_type : custom_types.FrameType = custom_types.FrameType.BINARY_FRAME) -> None:
         self._check_socket_id(socket_id)
 
         socket = self._client_socket_list[socket_id].get_socket()
@@ -453,7 +444,7 @@ class WebsocketServer:
     def send_string(self,
                     socket_id : int,
                     str       : str) -> None:
-        self.send_data(socket_id, str.encode(WebsocketServer.ENCODING_TYPE), WebsocketServer.FrameType.TEXT_FRAME)
+        self.send_data(socket_id, str.encode(WebsocketServer.ENCODING_TYPE), custom_types.FrameType.TEXT_FRAME)
 
     ## Sends the data as JSON encoded string to socket.
     # @param socket_id Socket ID of the client that will receive the data.

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['clientsocket_0',['ClientSocket',['../classpywebsocket_1_1_websocket_server_1_1_client_socket.html',1,'pywebsocket::WebsocketServer']]]
+  ['frametype_0',['FrameType',['../classcustom__types_1_1_frame_type.html',1,'custom_types']]]
 ];

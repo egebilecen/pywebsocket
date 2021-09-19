@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['server_0',['server',['../namespacetest.html#abad28af2c6318ed502558a6ac65f9e36',1,'test']]]
+  ['text_5fframe_0',['TEXT_FRAME',['../classcustom__types_1_1_frame_type.html#a791da47758138d6603ea6ca3678efc1b',1,'custom_types::FrameType']]]
 ];

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pywebsocket_0',['pywebsocket',['../namespacepywebsocket.html',1,'']]]
+  ['custom_5ftypes_0',['custom_types',['../namespacecustom__types.html',1,'']]]
 ];
