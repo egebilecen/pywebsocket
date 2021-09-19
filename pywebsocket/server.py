@@ -181,13 +181,14 @@ class WebsocketServer:
 
         # HTTP request must include "Sec-WebSocket-Version" field and it's value must match
         # with server's.
+        version_error_str = "Client's websocket version doesn't match with server's. (Server's version: {}, Client's version: {})".format(WebsocketServer.WEBSOCKET_VERSION, http_data["Sec-WebSocket-Version"])
         try:
             websocket_version_list = [int(elem.strip()) for elem in http_data["Sec-WebSocket-Version"].split(",") if elem]
         except:
-            raise exceptions.HANDSHAKE.FIELD_VALUE_MISMATCH("Client's websocket version doesn't match with server's. (Server's version: {}, Client's version: {})".format(WebsocketServer.WEBSOCKET_VERSION, http_data["Sec-WebSocket-Version"]))
+            raise exceptions.HANDSHAKE.WEBSOCKET_VERSION_ERROR(version_error_str)
 
         if "Sec-WebSocket-Version" not in http_data:                          raise exceptions.HANDSHAKE.REQUIRED_FIELD_MISSING("Sec-WebSocket-Version field is missing.")
-        elif WebsocketServer.WEBSOCKET_VERSION not in websocket_version_list: raise exceptions.HANDSHAKE.FIELD_VALUE_MISMATCH("Client's websocket version doesn't match with server's. (Server's version: {}, Client's version: {})".format(WebsocketServer.WEBSOCKET_VERSION, http_data["Sec-WebSocket-Version"]))
+        elif WebsocketServer.WEBSOCKET_VERSION not in websocket_version_list: raise exceptions.HANDSHAKE.WEBSOCKET_VERSION_ERROR(version_error_str)
 
         # Sec-WebSocket-Key field's value must be 16 bytes when decoded
         websocket_key         = http_data["Sec-WebSocket-Key"]
@@ -414,9 +415,14 @@ class WebsocketServer:
 
                 try:
                     handshake = WebsocketServer._create_handshake(handshake_request)
+                except exceptions.HANDSHAKE.WEBSOCKET_VERSION_ERROR:
+                    self._print_log("start()", "Connection {}:{}'s websocket version doesn't match with server's. Closing connection.".format(addr[0], addr[1]))
+                    conn.send(("HTTP/1.1 400 Bad Request\r\nSec-WebSocket-Version: {}\r\n\r\n".format(WebsocketServer.WEBSOCKET_VERSION)).encode(WebsocketServer.ENCODING_TYPE))
+                    conn.close()
+                    continue
                 except Exception as ex:
                     self._print_log("start()", "Connection {}:{} didn't send a valid handshake request. Closing connection. ({})".format(addr[0], addr[1], str(ex)))
-                    conn.send("HTTP/1.1 400 Bad Request".encode(WebsocketServer.ENCODING_TYPE))
+                    conn.send("HTTP/1.1 400 Bad Request\r\n\r\n".encode(WebsocketServer.ENCODING_TYPE))
                     conn.close()
                     continue
 
