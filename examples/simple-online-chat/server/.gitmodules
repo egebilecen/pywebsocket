@@ -1,0 +1,3 @@
+[submodule "pywebsocket"]
+	path = pywebsocket
+	url = https://github.com/egebilecen/pywebsocket
