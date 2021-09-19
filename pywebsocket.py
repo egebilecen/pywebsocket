@@ -5,11 +5,6 @@
     * client_connect
     * client_disconnect
     * client_data
-    TODO  : RFC6455
-            * Section 5.4
-              Section 5.5.2
-              Section 5.5.3
-              Section 7
 """
 
 from typing import Callable, Union, Optional
@@ -24,42 +19,42 @@ import threading
 
 import custom_types
 
+## WebsocketClient
+# Contains the variables for a client that connected to the server.
+class WebsocketClient:
+    def __init__(self, 
+                 id     : int,
+                 socket : socket.socket,
+                 addr   : tuple):
+        ## Socket ID of client
+        self._id     = id
+
+        ## Socket object of client
+        self._socket = socket
+
+        ## Address tuple of client
+        self._addr   = addr
+
+        ## Dictionary object to hold data in client.
+        self.data    = {}
+
+    ## Gets the socket ID of client.
+    def get_id(self) -> int:
+        return self._id
+
+    ## Gets the socket object of client.
+    def get_socket(self) -> socket.socket:
+        return self._socket
+
+    ## Gets the address pair of client.
+    def get_addr(self) -> tuple:
+        return self._addr
+
 ## WebsocketServer
 # Simple Websocket Server.
 class WebsocketServer:
     MAGIC_NUMBER  = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
     ENCODING_TYPE = "utf-8" 
-
-    ## ClientSocket
-    # Contains the variables for a client socket.
-    class ClientSocket:
-        def __init__(self, 
-                     id     : int,
-                     socket : socket.socket,
-                     addr   : tuple):
-            # Socket ID of client
-            self._id     = id
-
-            # Socket object of client
-            self._socket = socket
-
-            # Address tuple of client
-            self._addr   = addr
-
-            # Dictionary object to hold data in client.
-            self.data    = {}
-
-        ## Gets the socket ID of client.
-        def get_id(self) -> int:
-            return self._id
-
-        ## Gets the socket object of client.
-        def get_socket(self) -> socket.socket:
-            return self._socket
-
-        ## Gets the address pair of client.
-        def get_addr(self) -> tuple:
-            return self._addr
 
     ## Constructor of WebsocketServer.
     # @param ip IP address of the server.
@@ -406,7 +401,7 @@ class WebsocketServer:
                 client_socket_id = self._generate_socket_id()
                 client_thread    = threading.Thread(target=WebsocketServer._client_handler, args=(self, client_socket_id))
                 
-                self._client_socket_list[client_socket_id] = WebsocketServer.ClientSocket(client_socket_id, conn, addr)
+                self._client_socket_list[client_socket_id] = WebsocketClient(client_socket_id, conn, addr)
 
                 self._client_thread_list[client_socket_id] = {
                     "id"     : client_socket_id,
