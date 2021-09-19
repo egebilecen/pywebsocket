@@ -345,7 +345,7 @@ class WebsocketServer:
         client        = self._client_socket_list[socket_id]
         client_socket = client.get_socket()
 
-        client_socket.send(WebsocketServer._encode_data(struct.pack("!H", status_code), opcode_ovr = 0x08))
+        client_socket.send(WebsocketServer._encode_data(struct.pack("!H", status_code), opcode_ovr = custom_types.ControlFrame.CLOSE_FRAME))
         
         client_socket.close()
         self._client_socket_list.pop(socket_id)
