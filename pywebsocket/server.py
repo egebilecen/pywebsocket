@@ -346,6 +346,7 @@ class WebsocketServer:
 
     ## Closes the connection with client.
     # @param socket_id Client's given socket ID after sucessful handshake.
+    # @param status_code Status code for close frame. Pre-defined codes can be find in [here](https://datatracker.ietf.org/doc/html/rfc6455#section-7.4.1).
     # @param call_special_handler If set to True, "client_disconnect" special handler will be called. If set to False, no special handler will be called.
     def _close_client_socket(self, 
                              socket_id            : int,

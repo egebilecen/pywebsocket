@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['data_0',['data',['../classserver_1_1_websocket_client.html#a8c011e0dcca31eb98f3fcf8ed6db5e37',1,'server::WebsocketClient']]]
+  ['close_5fframe_0',['CLOSE_FRAME',['../classcustom__types_1_1_control_frame.html#a35cd4378924dfaac40e4c1757eec3a88',1,'custom_types::ControlFrame']]]
 ];

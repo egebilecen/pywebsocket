@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['text_5fframe_0',['TEXT_FRAME',['../classcustom__types_1_1_frame_type.html#a791da47758138d6603ea6ca3678efc1b',1,'custom_types::FrameType']]]
+  ['magic_5fnumber_0',['MAGIC_NUMBER',['../classserver_1_1_websocket_server.html#a470cfdfdee716e898842cac7f16b701c',1,'server::WebsocketServer']]],
+  ['mask_5ferror_1',['MASK_ERROR',['../classexceptions_1_1_m_a_s_k___e_r_r_o_r.html',1,'exceptions']]]
 ];

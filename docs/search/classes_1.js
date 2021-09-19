@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['websocketclient_0',['WebsocketClient',['../classserver_1_1_websocket_client.html',1,'server']]],
-  ['websocketserver_1',['WebsocketServer',['../classserver_1_1_websocket_server.html',1,'server']]]
+  ['data_5flength_5ferror_0',['DATA_LENGTH_ERROR',['../classexceptions_1_1_d_a_t_a___l_e_n_g_t_h___e_r_r_o_r.html',1,'exceptions']]]
 ];

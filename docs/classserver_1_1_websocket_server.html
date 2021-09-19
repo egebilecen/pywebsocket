@@ -127,9 +127,14 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
 <tr class="memitem:a470cfdfdee716e898842cac7f16b701c"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#a470cfdfdee716e898842cac7f16b701c">MAGIC_NUMBER</a> = &quot;258EAFA5-E914-47DA-95CA-C5AB0DC85B11&quot;</td></tr>
+<tr class="memdesc:a470cfdfdee716e898842cac7f16b701c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Globally Unique Identifier specified in RFC6455 The Websocket Protocol.  <a href="classserver_1_1_websocket_server.html#a470cfdfdee716e898842cac7f16b701c">More...</a><br /></td></tr>
 <tr class="separator:a470cfdfdee716e898842cac7f16b701c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8285fd72963c9720d974323e28131beb"><td class="memItemLeft" align="right" valign="top">string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#a8285fd72963c9720d974323e28131beb">ENCODING_TYPE</a> = &quot;utf-8&quot;</td></tr>
+<tr class="memdesc:a8285fd72963c9720d974323e28131beb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encoding type for all string messages.  <a href="classserver_1_1_websocket_server.html#a8285fd72963c9720d974323e28131beb">More...</a><br /></td></tr>
 <tr class="separator:a8285fd72963c9720d974323e28131beb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5f22a859736c24c427c222488a90e158"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#a5f22a859736c24c427c222488a90e158">WEBSOCKET_VERSION</a> = 13</td></tr>
+<tr class="memdesc:a5f22a859736c24c427c222488a90e158"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supported websocket version by server.  <a href="classserver_1_1_websocket_server.html#a5f22a859736c24c427c222488a90e158">More...</a><br /></td></tr>
+<tr class="separator:a5f22a859736c24c427c222488a90e158"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-methods" name="pri-methods"></a>
 Private Member Functions</h2></td></tr>
@@ -139,11 +144,11 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:a9cba2c2d7d2954a1953391db0747f328"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#a9cba2c2d7d2954a1953391db0747f328">_generate_socket_id</a> (self)</td></tr>
 <tr class="memdesc:a9cba2c2d7d2954a1953391db0747f328"><td class="mdescLeft">&#160;</td><td class="mdescRight">generates random number between 0 and max UINT value of the running system.  <a href="classserver_1_1_websocket_server.html#a9cba2c2d7d2954a1953391db0747f328">More...</a><br /></td></tr>
 <tr class="separator:a9cba2c2d7d2954a1953391db0747f328"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae3df04298924e9f2da5e4f02c44a88ba"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#ae3df04298924e9f2da5e4f02c44a88ba">_close_client_socket</a> (self, int socket_id, bool call_special_handler=True)</td></tr>
-<tr class="memdesc:ae3df04298924e9f2da5e4f02c44a88ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the connection with client.  <a href="classserver_1_1_websocket_server.html#ae3df04298924e9f2da5e4f02c44a88ba">More...</a><br /></td></tr>
-<tr class="separator:ae3df04298924e9f2da5e4f02c44a88ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2068f046ffe7574bf28c84ff79c3bc7"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#ae2068f046ffe7574bf28c84ff79c3bc7">_close_client_socket</a> (self, int socket_id, int status_code=1000, bool call_special_handler=True)</td></tr>
+<tr class="memdesc:ae2068f046ffe7574bf28c84ff79c3bc7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the connection with client.  <a href="classserver_1_1_websocket_server.html#ae2068f046ffe7574bf28c84ff79c3bc7">More...</a><br /></td></tr>
+<tr class="separator:ae2068f046ffe7574bf28c84ff79c3bc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a404247ea2faddcfe476bb5c1157eef14"><td class="memItemLeft" align="right" valign="top">None&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#a404247ea2faddcfe476bb5c1157eef14">_check_socket_id</a> (self, int socket_id)</td></tr>
-<tr class="memdesc:a404247ea2faddcfe476bb5c1157eef14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checkes if socket_id is a valid socket ID.  <a href="classserver_1_1_websocket_server.html#a404247ea2faddcfe476bb5c1157eef14">More...</a><br /></td></tr>
+<tr class="memdesc:a404247ea2faddcfe476bb5c1157eef14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if socket_id is a valid socket ID.  <a href="classserver_1_1_websocket_server.html#a404247ea2faddcfe476bb5c1157eef14">More...</a><br /></td></tr>
 <tr class="separator:a404247ea2faddcfe476bb5c1157eef14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pri-static-methods" name="pri-static-methods"></a>
@@ -157,9 +162,9 @@ Static Private Member Functions</h2></td></tr>
 <tr class="memitem:a4a32293db6670fa5bb55191853e65571"><td class="memItemLeft" align="right" valign="top">dict[str, str]&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#a4a32293db6670fa5bb55191853e65571">_parse_http_request</a> (str http_request)</td></tr>
 <tr class="memdesc:a4a32293db6670fa5bb55191853e65571"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses HTTP request into key/value (dict) pair.  <a href="classserver_1_1_websocket_server.html#a4a32293db6670fa5bb55191853e65571">More...</a><br /></td></tr>
 <tr class="separator:a4a32293db6670fa5bb55191853e65571"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41af30cba4f76adcc57656a873bce18b"><td class="memItemLeft" align="right" valign="top">bytes&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#a41af30cba4f76adcc57656a873bce18b">_encode_data</a> (bytes data, <a class="el" href="classcustom__types_1_1_frame_type.html">custom_types.FrameType</a> frame_type=<a class="el" href="classcustom__types_1_1_frame_type.html#a791da47758138d6603ea6ca3678efc1b">custom_types.FrameType.TEXT_FRAME</a>, Optional[int] opcode_ovr=None)</td></tr>
-<tr class="memdesc:a41af30cba4f76adcc57656a873bce18b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes the data that will be sent to client according to websocket packet structure and rules.  <a href="classserver_1_1_websocket_server.html#a41af30cba4f76adcc57656a873bce18b">More...</a><br /></td></tr>
-<tr class="separator:a41af30cba4f76adcc57656a873bce18b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9441c0304f91eea442134dec94934ff"><td class="memItemLeft" align="right" valign="top">bytes&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#ae9441c0304f91eea442134dec94934ff">_encode_data</a> (bytes data, int opcode)</td></tr>
+<tr class="memdesc:ae9441c0304f91eea442134dec94934ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes the data that will be sent to client according to websocket packet structure and rules.  <a href="classserver_1_1_websocket_server.html#ae9441c0304f91eea442134dec94934ff">More...</a><br /></td></tr>
+<tr class="separator:ae9441c0304f91eea442134dec94934ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaf0c03727c168ff1ca66221aa98071e0"><td class="memItemLeft" align="right" valign="top">bytes&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_server.html#aaf0c03727c168ff1ca66221aa98071e0">_decode_packet</a> (bytes packet)</td></tr>
 <tr class="memdesc:aaf0c03727c168ff1ca66221aa98071e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Decodes the packet sent from client.  <a href="classserver_1_1_websocket_server.html#aaf0c03727c168ff1ca66221aa98071e0">More...</a><br /></td></tr>
 <tr class="separator:aaf0c03727c168ff1ca66221aa98071e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -293,8 +298,8 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Checkes if socket_id is a valid socket ID. </p>
-<p >If not, it throws a KeyError exception. </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Checks if socket_id is a valid socket ID. </p>
+<p >If not, raises <a class="el" href="classexceptions_1_1_i_n_v_a_l_i_d___s_o_c_k_e_t___i_d.html" title="Raised when socket id is not in client socket list.">exceptions.INVALID_SOCKET_ID</a> exception. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">socket_id</td><td>Client's given socket ID after sucessful handshake. </td></tr>
   </table>
@@ -347,8 +352,8 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="ae3df04298924e9f2da5e4f02c44a88ba" name="ae3df04298924e9f2da5e4f02c44a88ba"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae3df04298924e9f2da5e4f02c44a88ba">&#9670;&nbsp;</a></span>_close_client_socket()</h2>
+<a id="ae2068f046ffe7574bf28c84ff79c3bc7" name="ae2068f046ffe7574bf28c84ff79c3bc7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2068f046ffe7574bf28c84ff79c3bc7">&#9670;&nbsp;</a></span>_close_client_socket()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -367,6 +372,12 @@ Private Attributes</h2></td></tr>
           <td></td>
           <td class="paramtype">int&#160;</td>
           <td class="paramname"><em>socket_id</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int  &#160;</td>
+          <td class="paramname"><em>status_code</em> = <code>1000</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -391,6 +402,7 @@ Private Attributes</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">socket_id</td><td>Client's given socket ID after sucessful handshake. </td></tr>
+    <tr><td class="paramname">status_code</td><td>Status code for close frame. Pre-defined codes can be find in <a href="https://datatracker.ietf.org/doc/html/rfc6455#section-7.4.1">here</a>. </td></tr>
     <tr><td class="paramname">call_special_handler</td><td>If set to True, "client_disconnect" special handler will be called. If set to False, no special handler will be called. </td></tr>
   </table>
   </dd>
@@ -463,11 +475,12 @@ Private Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section warning"><dt>Warning</dt><dd>Raises <a class="el" href="classexceptions_1_1_u_n_k_n_o_w_n___o_p_c_o_d_e.html" title="Raised when an unknown OPCODE detected.">exceptions.UNKNOWN_OPCODE</a> exception if an unknown OPCODE is detected. Raises <a class="el" href="classexceptions_1_1_c_l_o_s_e___c_o_n_n_e_c_t_i_o_n.html" title="Raised when closing OPCODE detected.">exceptions.CLOSE_CONNECTION</a> exception if close connection OPCODE is detected. Raises <a class="el" href="classexceptions_1_1_m_a_s_k___e_r_r_o_r.html" title="Raised when unmasked frame detected.">exceptions.MASK_ERROR</a> exception if unmasked frame is detected. </dd></dl>
 
 </div>
 </div>
-<a id="a41af30cba4f76adcc57656a873bce18b" name="a41af30cba4f76adcc57656a873bce18b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a41af30cba4f76adcc57656a873bce18b">&#9670;&nbsp;</a></span>_encode_data()</h2>
+<a id="ae9441c0304f91eea442134dec94934ff" name="ae9441c0304f91eea442134dec94934ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9441c0304f91eea442134dec94934ff">&#9670;&nbsp;</a></span>_encode_data()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -484,14 +497,8 @@ Private Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classcustom__types_1_1_frame_type.html">custom_types.FrameType</a> &#160;</td>
-          <td class="paramname"><em>frame_type</em> = <code><a class="el" href="classcustom__types_1_1_frame_type.html#a791da47758138d6603ea6ca3678efc1b">custom_types.FrameType.TEXT_FRAME</a></code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">Optional[int]          &#160;</td>
-          <td class="paramname"><em>opcode_ovr</em> = <code>None</code>&#160;</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>opcode</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -510,11 +517,14 @@ Private Attributes</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">data</td><td>Data that will be sent to client. </td></tr>
-    <tr><td class="paramname">frame_type</td><td>Type of frame. It can only be FrameType.TEXT_FRAME or FrameType.BINARY_FRAME. If data sent as a FrameType.TEXT_FRAME, client will receive data as UTF-8 string. If data sent as a FrameType.BINARY_FRAME, client will receive data as byte array. </td></tr>
-    <tr><td class="paramname">opcode_ovr</td><td>OPCODE override. OPCODE will be set to this value if value is not None. </td></tr>
+    <tr><td class="paramname">opcode</td><td>OPCODE of frame. </td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section note"><dt>Note</dt><dd>If OPCODE set to FrameType.TEXT_FRAME, client will receive data as UTF-8 string. If OPCODE set to FrameType.BINARY_FRAME, client will receive data as byte array. </dd></dl>
+<dl class="section warning"><dt>Warning</dt><dd>- Raises <a class="el" href="classexceptions_1_1_d_a_t_a___l_e_n_g_t_h___e_r_r_o_r.html" title="Raised when length of data passed to WebsocketServer._encode_data is bigger than 0xFFFFFFFFFFFFFFFF.">exceptions.DATA_LENGTH_ERROR</a> exception if data's length is bigger than 0xFFFFFFFFFFFFFFFF. </dd>
+<dd>
+- Do not forget that all control frames MUST have a payload length of 125 bytes or less and MUST NOT be fragmented. </dd></dl>
 
 </div>
 </div>
@@ -675,7 +685,7 @@ Private Attributes</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">socket_id</td><td>Socket ID of the client that will receive the data. </td></tr>
     <tr><td class="paramname">data</td><td>Data that will be sent. </td></tr>
-    <tr><td class="paramname">frame_type</td><td>Type of frame. See <a class="el" href="classserver_1_1_websocket_server.html#a41af30cba4f76adcc57656a873bce18b" title="Encodes the data that will be sent to client according to websocket packet structure and rules.">WebsocketServer._encode_data</a> for more information. </td></tr>
+    <tr><td class="paramname">frame_type</td><td>Type of frame. See <a class="el" href="classserver_1_1_websocket_server.html#ae9441c0304f91eea442134dec94934ff" title="Encodes the data that will be sent to client according to websocket packet structure and rules.">WebsocketServer._encode_data</a> for more information. </td></tr>
   </table>
   </dd>
 </dl>
@@ -803,7 +813,7 @@ Private Attributes</h2></td></tr>
 <p>Sends the data to all sockets. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">send_func</td><td>Method reference to call for sending the data. It can only be reference to <a class="el" href="classserver_1_1_websocket_server.html#abcc407f031bb71edcbdd946351271ffa" title="Sends the data to socket.">WebsocketServer.send_data</a>, <a class="el" href="classserver_1_1_websocket_server.html#ab414dc4a498629cbb3d71de4122d8d09" title="Sends the data as string to socket.">WebsocketServer.send_string</a> or <a class="el" href="classserver_1_1_websocket_server.html#a8cf066015e8e72c4904d8d64beca817d" title="Sends the data as JSON encoded string to socket.">WebsocketServer.send_json</a>. Otherwise method will raise ValueError exception. </td></tr>
+    <tr><td class="paramname">send_func</td><td>Method reference to call for sending the data. It can only be reference to <a class="el" href="classserver_1_1_websocket_server.html#abcc407f031bb71edcbdd946351271ffa" title="Sends the data to socket.">WebsocketServer.send_data</a>, <a class="el" href="classserver_1_1_websocket_server.html#ab414dc4a498629cbb3d71de4122d8d09" title="Sends the data as string to socket.">WebsocketServer.send_string</a> or <a class="el" href="classserver_1_1_websocket_server.html#a8cf066015e8e72c4904d8d64beca817d" title="Sends the data as JSON encoded string to socket.">WebsocketServer.send_json</a>. Otherwise method will raise <a class="el" href="classexceptions_1_1_i_n_v_a_l_i_d___s_e_n_d___m_e_t_h_o_d.html" title="Raised when WebsocketServer.send_to_all receives an invalid send method as parameter.">exceptions.INVALID_SEND_METHOD</a> exception. </td></tr>
     <tr><td class="paramname">data</td><td>Data that will be sent. It's type must match with the send_func reference method's. </td></tr>
   </table>
   </dd>
@@ -851,6 +861,7 @@ Private Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section warning"><dt>Warning</dt><dd>Raises KeyError exception if handler_name not in special handlers list. Raises <a class="el" href="classexceptions_1_1_i_n_v_a_l_i_d___m_e_t_h_o_d.html" title="Raised when invalid method detected.">exceptions.INVALID_METHOD</a> exception if func paramater is not a callable. </dd></dl>
 
 </div>
 </div>
@@ -1179,6 +1190,8 @@ Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
+<p>Encoding type for all string messages. </p>
+
 </div>
 </div>
 <a id="a470cfdfdee716e898842cac7f16b701c" name="a470cfdfdee716e898842cac7f16b701c"></a>
@@ -1200,6 +1213,32 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+
+<p>Globally Unique Identifier specified in RFC6455 The Websocket Protocol. </p>
+
+</div>
+</div>
+<a id="a5f22a859736c24c427c222488a90e158" name="a5f22a859736c24c427c222488a90e158"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5f22a859736c24c427c222488a90e158">&#9670;&nbsp;</a></span>WEBSOCKET_VERSION</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int server.WebsocketServer.WEBSOCKET_VERSION = 13</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Supported websocket version by server. </p>
 
 </div>
 </div>

@@ -2,7 +2,7 @@ var classserver_1_1_websocket_server =
 [
     [ "__init__", "classserver_1_1_websocket_server.html#a8bdfa4480e16dd01cf10426a0c6789c3", null ],
     [ "_check_socket_id", "classserver_1_1_websocket_server.html#a404247ea2faddcfe476bb5c1157eef14", null ],
-    [ "_close_client_socket", "classserver_1_1_websocket_server.html#ae3df04298924e9f2da5e4f02c44a88ba", null ],
+    [ "_close_client_socket", "classserver_1_1_websocket_server.html#ae2068f046ffe7574bf28c84ff79c3bc7", null ],
     [ "_generate_socket_id", "classserver_1_1_websocket_server.html#a9cba2c2d7d2954a1953391db0747f328", null ],
     [ "_print_log", "classserver_1_1_websocket_server.html#ab46ef945933474fbc254bd567684df9d", null ],
     [ "send_data", "classserver_1_1_websocket_server.html#abcc407f031bb71edcbdd946351271ffa", null ],

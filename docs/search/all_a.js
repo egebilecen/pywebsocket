@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['websocketclient_0',['WebsocketClient',['../classserver_1_1_websocket_client.html',1,'server']]],
-  ['websocketserver_1',['WebsocketServer',['../classserver_1_1_websocket_server.html',1,'server']]]
+  ['ping_5fframe_0',['PING_FRAME',['../classcustom__types_1_1_control_frame.html#a7b861de65012691579ca4ba1ef843d48',1,'custom_types::ControlFrame']]],
+  ['pong_5fframe_1',['PONG_FRAME',['../classcustom__types_1_1_control_frame.html#ab9d1081be99d9742b799c7eeaba566d1',1,'custom_types::ControlFrame']]]
 ];

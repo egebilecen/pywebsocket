@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['encoding_5ftype_0',['ENCODING_TYPE',['../classserver_1_1_websocket_server.html#a8285fd72963c9720d974323e28131beb',1,'server::WebsocketServer']]]
+  ['data_0',['data',['../classserver_1_1_websocket_client.html#a8c011e0dcca31eb98f3fcf8ed6db5e37',1,'server::WebsocketClient']]]
 ];
