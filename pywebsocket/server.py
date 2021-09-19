@@ -358,7 +358,7 @@ class WebsocketServer:
             self._print_log("_close_client_socket()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
             self._special_handler_list["client_disconnect"](self, client)
 
-    ## Checkes if socket_id is a valid socket ID. If not, raises exceptions.INVALID_SOCKET_ID exception.
+    ## Checks if socket_id is a valid socket ID. If not, raises exceptions.INVALID_SOCKET_ID exception.
     # @param socket_id Client's given socket ID after sucessful handshake.
     def _check_socket_id(self, 
                          socket_id : int) -> None:
