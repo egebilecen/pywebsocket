@@ -346,8 +346,8 @@ class WebsocketServer:
         client_socket = client.get_socket()
 
         client_socket.send(WebsocketServer._encode_data(struct.pack("!H", status_code), opcode_ovr = 0x08))
+        
         client_socket.close()
-
         self._client_socket_list.pop(socket_id)
         
         self._client_thread_list[socket_id]["status"] = 0
