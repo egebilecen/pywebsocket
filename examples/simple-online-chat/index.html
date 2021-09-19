@@ -77,7 +77,7 @@
         }
 
         //Crate websocket
-        var socket = EB_Websocket("192.168.1.5", 3232);
+        var socket = EB_Websocket("127.0.0.1", 3232);
 
         socket.setErrorEvent(function(){
             $_("#chat-main").innerHTML = "<span style='color:red;display:block;text-align:center;'>Couldn't connect to server.</span>";

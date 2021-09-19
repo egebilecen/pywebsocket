@@ -1,10 +1,13 @@
 """
     Author: Ege Bilecen
-    Date  : 06.09.2021
-    TODO  : Section 5.4, Section 5.5.2, Section 5.5.3, Section 7
+    Available Special Handlers:
+    * loop
+    * client_connect
+    * client_disconnect
+    * client_data
 """
 
-from typing import Callable, Union
+from typing import Callable, Union, Optional
 from random import randint
 from sys    import maxsize as MAX_UINT_VALUE
 import socket
@@ -14,14 +17,51 @@ import struct
 import json
 import threading
 
+from . import custom_types
+
+## WebsocketClient
+# Contains the variables for a client that connected to the server.
+class WebsocketClient:
+    def __init__(self, 
+                 id     : int,
+                 socket : socket.socket,
+                 addr   : tuple):
+        ## Socket ID of client
+        self._id     = id
+
+        ## Socket object of client
+        self._socket = socket
+
+        ## Address tuple of client
+        self._addr   = addr
+
+        ## Dictionary object to hold data in client.
+        self.data    = {}
+
+    ## Gets the socket ID of client.
+    def get_id(self) -> int:
+        return self._id
+
+    ## Gets the socket object of client.
+    def get_socket(self) -> socket.socket:
+        return self._socket
+
+    ## Gets the address pair of client.
+    def get_addr(self) -> tuple:
+        return self._addr
+
+## WebsocketServer
+# Simple Websocket Server.
 class WebsocketServer:
     MAGIC_NUMBER  = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
     ENCODING_TYPE = "utf-8" 
 
-    class FrameType:
-        TEXT_FRAME   = 1
-        BINARY_FRAME = 2
-
+    ## Constructor of WebsocketServer.
+    # @param ip IP address of the server.
+    # @param port Port number that will be used for communication.
+    # @param client_buffer_size Buffer size for the data sent from client.
+    # @param pass_data_as_string Data sent from client will be passed as UTF-8 string to "client_data" special handler's data param if set to True. Otherwise a byte array will be passed.
+    # @param debug Enable/disable debug messages.
     def __init__(self,
                  ip                  : str  = "",
                  port                : int  = 3630,
@@ -52,20 +92,22 @@ class WebsocketServer:
         }
 
     """
-        Private Method(s)
+        --- Private Method(s)
     """
+    ## Function that will handle data sent from client.
+    # @param socket_id Client's given socket ID after sucessful handshake.
     @staticmethod
     def _client_handler(cls       : "WebsocketServer",
                         socket_id : int) -> None:
         LOG_TITLE = "_client_handler() - [Socket ID: {}]".format(socket_id)
 
         cls._print_log(LOG_TITLE, "A new thread has been started for the socket.")
-        socket_dict   = cls._client_socket_list[socket_id]
-        client_socket = socket_dict["socket"]
+        client        = cls._client_socket_list[socket_id]
+        client_socket = client.get_socket()
 
         if cls._special_handler_list["client_connect"] is not None:
             cls._print_log(LOG_TITLE, "Calling \"client_connect\" special handler for the socket.")
-            cls._special_handler_list["client_connect"](cls, socket_dict)
+            cls._special_handler_list["client_connect"](cls, client)
 
         while cls._is_running \
         and   cls._client_thread_list[socket_id]["status"] == 1:
@@ -84,7 +126,7 @@ class WebsocketServer:
 
                     if cls._special_handler_list["client_data"] is not None:
                         cls._print_log(LOG_TITLE, "Calling \"client_data\" special handler for the socket.")
-                        cls._special_handler_list["client_data"](cls, socket_dict, client_data)
+                        cls._special_handler_list["client_data"](cls, client, client_data)
                 except ValueError as ex:
                     if str(ex) != "Closing connection":
                         cls._print_log(LOG_TITLE, "The socket has sent an inappropriate packet. Closing connection. ({})".format(str(ex)))
@@ -97,6 +139,8 @@ class WebsocketServer:
         cls._print_log(LOG_TITLE, "The socket's thread has been terminated.")
         cls._client_thread_list.pop(socket_id)
 
+    ## Creates handshake from HTTP request of client.
+    # @param http_request HTTP request sent from client.
     @staticmethod
     def _create_handshake(http_request : bytes) -> bytes:
         http_data = WebsocketServer._parse_http_request(http_request.decode())
@@ -147,6 +191,8 @@ class WebsocketServer:
 
         return handshake_response.encode()
 
+    ## Parses HTTP request into key/value (dict) pair.
+    # @param http_request HTTP request string.
     @staticmethod
     def _parse_http_request(http_request : str) -> dict[str, str]:
         request_split = [elem for elem in http_request.split("\r\n") if elem]
@@ -164,9 +210,14 @@ class WebsocketServer:
 
         return ret_val
 
+    ## Encodes the data that will be sent to client according to websocket packet structure and rules.
+    # @param data Data that will be sent to client.
+    # @param frame_type Type of frame. It can only be FrameType.TEXT_FRAME or FrameType.BINARY_FRAME. If data sent as a FrameType.TEXT_FRAME, client will receive data as UTF-8 string. If data sent as a FrameType.BINARY_FRAME, client will receive data as byte array.
+    # @param opcode_ovr OPCODE override. OPCODE will be set to this value if value is not None.
     @staticmethod
     def _encode_data(data       : bytes, 
-                     frame_type : "WebsocketServer.FrameType" = FrameType.TEXT_FRAME) -> bytes:
+                     frame_type : custom_types.FrameType = custom_types.FrameType.TEXT_FRAME,
+                     opcode_ovr : Optional[int]          = None) -> bytes:
         packet   = bytearray()
         data_len = len(data)
 
@@ -174,9 +225,12 @@ class WebsocketServer:
         RSV1   = 0b00000000
         RSV2   = 0b00000000
         RSV3   = 0b00000000
-        OPCODE = 0b00000001 if frame_type == WebsocketServer.FrameType.TEXT_FRAME else 0b00000010
+        OPCODE = 0b00000001 if frame_type == custom_types.FrameType.TEXT_FRAME else 0b00000010
         EXT_16 = 0x7E
         EXT_64 = 0x7F
+
+        if opcode_ovr is not None: OPCODE = opcode_ovr
+
         HEADER = FIN | RSV1 | RSV2 | RSV3 | OPCODE
 
         packet.append(HEADER)
@@ -195,7 +249,9 @@ class WebsocketServer:
         packet.extend(data)
 
         return bytes(packet)
-        
+    
+    ## Decodes the packet sent from client.
+    # @param packet Packet sent from client.
     @staticmethod
     def _decode_packet(packet : bytes) -> bytes:
         header = struct.unpack("!H", packet[:2])[0]
@@ -236,13 +292,18 @@ class WebsocketServer:
             payload_data.append(byte ^ MASK_KEY[i % 4])
 
         return bytes(payload_data)
-
+    
+    ## prints log to console if debug is enabled.
+    # @param title Title.
+    # @param msg Message.
     def _print_log(self, 
                    title : str, 
                    msg   : str) -> None:
         if self._debug:
             print("pywebsocket - {} - {}".format(title, msg))
 
+    ## generates random number between 0 and max UINT value of the running system.
+    # @warning This method will cause endless loop if there are no available numbers left.
     def _generate_socket_id(self) -> int:
         rand_int = randint(0, MAX_UINT_VALUE)
 
@@ -251,13 +312,16 @@ class WebsocketServer:
 
         return rand_int
 
-    
+    ## Closes the connection with client.
+    # @param socket_id Client's given socket ID after sucessful handshake.
+    # @param call_special_handler If set to True, "client_disconnect" special handler will be called. If set to False, no special handler will be called.
     def _close_client_socket(self, 
-                            socket_id            : int,
-                            call_special_handler : bool = True):
-        socket_dict   = self._client_socket_list[socket_id]
-        client_socket = self._client_socket_list[socket_id]["socket"]
+                             socket_id            : int,
+                             call_special_handler : bool = True):
+        client        = self._client_socket_list[socket_id]
+        client_socket = client.get_socket()
 
+        client_socket.send(WebsocketServer._encode_data(b"", opcode_ovr = 0x08))
         client_socket.close()
         self._client_socket_list.pop(socket_id)
         self._client_thread_list[socket_id]["status"] = 0
@@ -265,16 +329,21 @@ class WebsocketServer:
         if  call_special_handler \
         and self._special_handler_list["client_disconnect"] is not None:
             self._print_log("_close_client_socket()", "Calling \"client_disconnect\" special handler for socket id {}.".format(socket_id))
-            self._special_handler_list["client_disconnect"](self, socket_dict)
+            self._special_handler_list["client_disconnect"](self, client)
 
+    ## Checkes if socket_id is a valid socket ID. If not, it throws a KeyError exception.
+    # @param socket_id Client's given socket ID after sucessful handshake.
     def _check_socket_id(self, 
                          socket_id : int) -> None:
         if socket_id not in self._client_socket_list:
             raise KeyError("Socket id {} not in client socket list.".format(socket_id))
 
     """
-        Public Method(s)
+        --- Public Method(s)
     """
+    ## Sets the callback function for special handlers.
+    # @param handler_name Special handler's name.
+    # @param func Callback function that will be called upon special cases. (Such as client connect etc.)
     def set_special_handler(self, 
                             handler_name : str, 
                             func         : Callable) -> None:
@@ -287,9 +356,11 @@ class WebsocketServer:
         self._print_log("set_special_handler()", "Special handler for \"{}\" has been set.".format(handler_name))
         self._special_handler_list[handler_name] = func
 
+    ## Stops the server.
     def stop(self) -> None:
         self._is_running = False
 
+    ## Starts the server.
     def start(self) -> None:
         self._server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server.bind(self._addr)
@@ -321,6 +392,7 @@ class WebsocketServer:
                 # Not a valid request since method to generate websocket handshake returned nothing
                 if handshake == b"":
                     self._print_log("start()", "Connection {}:{} didn't send a valid handshake request. Closing connection.".format(addr[0], addr[1]))
+                    conn.send("HTTP/1.1 400 Bad Request".encode())
                     conn.close()
                     continue
 
@@ -329,12 +401,7 @@ class WebsocketServer:
                 client_socket_id = self._generate_socket_id()
                 client_thread    = threading.Thread(target=WebsocketServer._client_handler, args=(self, client_socket_id))
                 
-                self._client_socket_list[client_socket_id] = {
-                    "id"     : client_socket_id,
-                    "socket" : conn,
-                    "addr"   : addr,
-                    "data"   : {}
-                }
+                self._client_socket_list[client_socket_id] = WebsocketClient(client_socket_id, conn, addr)
 
                 self._client_thread_list[client_socket_id] = {
                     "id"     : client_socket_id,
@@ -342,7 +409,7 @@ class WebsocketServer:
                     "thread" : client_thread
                 }
 
-                client_thread.daemon = False
+                client_thread.daemon = True
                 client_thread.start()
         
             self._print_log("start() - impl()", "Closing the server.")
@@ -358,25 +425,38 @@ class WebsocketServer:
         handshake_thread.daemon = False
         handshake_thread.start()
 
+    ## Sends the data to socket.
+    # @param socket_id Socket ID of the client that will receive the data.
+    # @param data Data that will be sent.
+    # @param frame_type Type of frame. See WebsocketServer._encode_data for more information.
     def send_data(self, 
                   socket_id  : int,
                   data       : bytes,
-                  frame_type : "WebsocketServer.FrameType" = FrameType.BINARY_FRAME) -> None:
+                  frame_type : custom_types.FrameType = custom_types.FrameType.BINARY_FRAME) -> None:
         self._check_socket_id(socket_id)
 
-        socket = self._client_socket_list[socket_id]["socket"]
+        socket = self._client_socket_list[socket_id].get_socket()
         socket.send(WebsocketServer._encode_data(data, frame_type))
 
+    ## Sends the data as string to socket.
+    # @param socket_id Socket ID of the client that will receive the data.
+    # @param str String that will be sent.
     def send_string(self,
                     socket_id : int,
                     str       : str) -> None:
-        self.send_data(socket_id, str.encode(WebsocketServer.ENCODING_TYPE), WebsocketServer.FrameType.TEXT_FRAME)
+        self.send_data(socket_id, str.encode(WebsocketServer.ENCODING_TYPE), custom_types.FrameType.TEXT_FRAME)
 
+    ## Sends the data as JSON encoded string to socket.
+    # @param socket_id Socket ID of the client that will receive the data.
+    # @param dict Dictionary object that will be encoded as JSON string and sent to client.
     def send_json(self,
                   socket_id : int,
                   dict      : dict) -> None:
         self.send_string(socket_id, json.dumps(dict))
 
+    ## Sends the data to all sockets.
+    # @param send_func Method reference to call for sending the data. It can only be reference to WebsocketServer.send_data, WebsocketServer.send_string or WebsocketServer.send_json. Otherwise method will raise ValueError exception.
+    # @param data Data that will be sent. It's type must match with the send_func reference method's.
     def send_to_all(self,
                     send_func : Callable,
                     data      : Union[bytes, str, dict]) -> None:

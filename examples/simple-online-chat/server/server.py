@@ -1,20 +1,20 @@
-from classes.pywebsocket import WebsocketServer
+from pywebsocket.server import WebsocketServer
 from random import random
 from urllib.parse import unquote
 import json
 
 # HANDLERS
 def setNickname(server, socket, data):
-    if socket["data"]["isTakenNickname"]:
+    if socket.data["isTakenNickname"]:
         return False
     
-    socket["data"]["nickname"]        = data["nickname"]
-    socket["data"]["isTakenNickname"] = True
+    socket.data["nickname"]        = data["nickname"]
+    socket.data["isTakenNickname"] = True
 
     server.user_list.append({
-        "userID"       : socket["data"]["userID"],
-        "nickname"     : socket["data"]["nickname"],
-        "data"         : socket["data"],
+        "userID"       : socket.data["userID"],
+        "nickname"     : socket.data["nickname"],
+        "data"         : socket.data,
         "socket"       : socket
     })
 
@@ -23,27 +23,27 @@ def getRoomList(server, socket, data):
         "where" : "getRoomListResponse",
         "data"  : server.room_list
     }
-    server.send_json(socket["id"], dict)
+    server.send_json(socket.get_id(), dict)
 
 def newRoom(server, socket, data):
-    if not socket["data"]["isCreatedRoom"]:
+    if not socket.data["isCreatedRoom"]:
         room = {
             "roomID"      : random(),
             "roomName"    : data["roomName"],
-            "ownerID"     : socket["data"]["userID"],
+            "ownerID"     : socket.data["userID"],
             "userList"    : [], # stored as nickname and user id pair
             "chatHistory" : []
         }
 
         server.room_list.append(room)
 
-        socket["data"]["isCreatedRoom"] = True
+        socket.data["isCreatedRoom"] = True
 
         dict = {
             "where" : "newRoomResponse",
             "data"  : {"code":1, "roomID":room["roomID"]}
         }
-        server.send_json(socket["id"], dict)
+        server.send_json(socket.get_id(), dict)
 
         dict2 = {
             "where" : "getRoomListResponse",
@@ -56,21 +56,21 @@ def newRoom(server, socket, data):
             "where" : "newRoomResponse",
             "data"  : {"code":2}
         }
-        server.send_json(socket["id"], dict)
+        server.send_json(socket.get_id(), dict)
 
 def enterRoom(server, socket, data):
     for room in server.room_list:
         if room["roomID"] == data["roomID"]:
-            if socket["data"]["currentRoomID"] is not room["roomID"]:
-                room["userList"].append((socket["data"]["userID"], socket["data"]["nickname"]))
+            if socket.data["currentRoomID"] is not room["roomID"]:
+                room["userList"].append((socket.data["userID"], socket.data["nickname"]))
 
                 dict = {
                     "where" : "enterRoomResponse",
                     "data"  : {"code":1, "room_name":room["roomName"],"room_user_list":room["userList"], "chat_history":room["chatHistory"]}
                 }
-                server.send_json(socket["id"], dict)
+                server.send_json(socket.get_id(), dict)
                 
-                socket["data"]["currentRoomID"] = room["roomID"]
+                socket.data["currentRoomID"] = room["roomID"]
 
                 break
 
@@ -79,22 +79,22 @@ def enterRoom(server, socket, data):
                     "where" : "enterRoomResponse",
                     "data"  : {"code":3}
                 }
-                server.send_json(socket["id"], dict) # already in chat room
+                server.send_json(socket.get_id(), dict) # already in chat room
 
         else:
             dict = {
                 "where" : "enterRoomResponse",
                 "data"  : {"code":2}
             }
-            server.send_json(socket["id"], dict) # room is not exist
+            server.send_json(socket.get_id(), dict) # room is not exist
 
 def chatNewMessage(server, socket, data):
-    if socket["data"]["currentRoomID"] == data["roomID"]:
+    if socket.data["currentRoomID"] == data["roomID"]:
         for room in server.room_list:
-            if room["roomID"] == socket["data"]["currentRoomID"]:
+            if room["roomID"] == socket.data["currentRoomID"]:
                 room["chatHistory"].append({
-                    "senderID"       : socket["data"]["userID"],
-                    "senderNickname" : socket["data"]["nickname"],
+                    "senderID"       : socket.data["userID"],
+                    "senderNickname" : socket.data["nickname"],
                     "message"        : data["message"]
                 })
 
@@ -103,33 +103,33 @@ def chatNewMessage(server, socket, data):
                         dict = {
                             "where" : "chatNewMessageResponse",
                             "data"  : {
-                                "senderID"       : socket["data"]["userID"],
-                                "senderNickname" : socket["data"]["nickname"],
+                                "senderID"       : socket.data["userID"],
+                                "senderNickname" : socket.data["nickname"],
                                 "message"        : data["message"]
                             }
                         }
-                        server.send_json(user["socket"]["id"], dict)
+                        server.send_json(user["socket"].get_id(), dict)
 
     else: return False
 
 # SPECIAL HANDLERS
 def client_connect(server, socket):
     # create random id for socket user
-    socket["data"]["userID"]          = random()
-    socket["data"]["nickname"]        = None
-    socket["data"]["isCreatedRoom"]   = False
-    socket["data"]["isTakenNickname"] = False
-    socket["data"]["currentRoomID"]   = None
+    socket.data["userID"]          = random()
+    socket.data["nickname"]        = None
+    socket.data["isCreatedRoom"]   = False
+    socket.data["isTakenNickname"] = False
+    socket.data["currentRoomID"]   = None
 
 def client_disconnect(server, socket):
     for i, user in enumerate(server.user_list):
-        if socket["data"]["userID"] == user["userID"]:
+        if socket.data["userID"] == user["userID"]:
             server.user_list.pop(i)
 
-    if socket["data"]["currentRoomID"] is not None:
+    if socket.data["currentRoomID"] is not None:
         for room in server.room_list:
             for i, user in enumerate(room["userList"]):
-                if user[0] == socket["data"]["userID"]:
+                if user[0] == socket.data["userID"]:
                     room["userList"].pop(i)
                     
                     if len(room["userList"]) < 1:
@@ -167,3 +167,6 @@ server.user_list = []
 server.room_list = []
 
 server.start()
+
+# prevent main thread from exiting
+while 1: continue
