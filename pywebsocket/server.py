@@ -53,8 +53,14 @@ class WebsocketClient:
 ## WebsocketServer
 # Simple Websocket Server.
 class WebsocketServer:
-    MAGIC_NUMBER  = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-    ENCODING_TYPE = "utf-8" 
+    ## Globally Unique Identifier specified in RFC6455 The Websocket Protocol.
+    MAGIC_NUMBER      = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+
+    ## Encoding type for all string messages.
+    ENCODING_TYPE     = "utf-8"
+
+    ## Supported websocket version by server.
+    WEBSOCKET_VERSION = 13
 
     ## Constructor of WebsocketServer.
     # @param ip IP address of the server.
@@ -169,9 +175,15 @@ class WebsocketServer:
         # HTTP request must include "Sec-WebSocket-Key" field
         if "Sec-WebSocket-Key" not in http_data:               return b""
 
-        # HTTP request must include "Sec-WebSocket-Version" field and it's value must be 13
-        if "Sec-WebSocket-Version" not in http_data:           return b""
-        elif http_data["Sec-WebSocket-Version"] != "13":       return b""
+        # HTTP request must include "Sec-WebSocket-Version" field and it's value must match
+        # with server's.
+        try:
+            websocket_version_list = [int(elem.strip()) for elem in http_data["Sec-WebSocket-Version"].split(",") if elem]
+        except:
+            return b""
+
+        if "Sec-WebSocket-Version" not in http_data:                          return b""
+        elif WebsocketServer.WEBSOCKET_VERSION not in websocket_version_list: return b""
 
         # Sec-WebSocket-Key field's value must be 16 bytes when decoded
         websocket_key         = http_data["Sec-WebSocket-Key"]
