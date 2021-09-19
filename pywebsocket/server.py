@@ -7,6 +7,7 @@
     * client_data
 """
 
+from types import FrameType
 from typing import Callable, Union, Optional
 from random import randint
 from sys    import maxsize as MAX_UINT_VALUE
@@ -245,11 +246,12 @@ class WebsocketServer:
         RSV1   = 0b00000000
         RSV2   = 0b00000000
         RSV3   = 0b00000000
-        OPCODE = 0b00000001 if frame_type == custom_types.FrameType.TEXT_FRAME else 0b00000010
+        OPCODE = frame_type
         EXT_16 = 0x7E
         EXT_64 = 0x7F
 
-        if opcode_ovr is not None: OPCODE = opcode_ovr
+        if opcode_ovr is not None: 
+            OPCODE = opcode_ovr
 
         HEADER = FIN | RSV1 | RSV2 | RSV3 | OPCODE
 
@@ -338,11 +340,12 @@ class WebsocketServer:
     # @param call_special_handler If set to True, "client_disconnect" special handler will be called. If set to False, no special handler will be called.
     def _close_client_socket(self, 
                              socket_id            : int,
+                             status_code          : int  = 1000,
                              call_special_handler : bool = True):
         client        = self._client_socket_list[socket_id]
         client_socket = client.get_socket()
 
-        client_socket.send(WebsocketServer._encode_data(b"", opcode_ovr = 0x08))
+        client_socket.send(WebsocketServer._encode_data(struct.pack("!H", status_code), opcode_ovr = 0x08))
         client_socket.close()
 
         self._client_socket_list.pop(socket_id)
