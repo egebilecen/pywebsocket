@@ -33,9 +33,6 @@ server.set_special_handler("client_disconnect", on_client_disconnect)
 server.set_special_handler("client_data",       on_client_data)
 
 server.start()
-
-# prevent main from exiting
-while 1: pass
 ```
 
 # Documentation
