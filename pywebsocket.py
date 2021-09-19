@@ -17,7 +17,7 @@ import struct
 import json
 import threading
 
-import custom_types
+from . import custom_types
 
 ## WebsocketClient
 # Contains the variables for a client that connected to the server.
