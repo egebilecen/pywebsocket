@@ -120,13 +120,6 @@ class WebsocketServer:
             else:
                 try:
                     client_data = WebsocketServer._decode_packet(data)
-                    cls._print_log(LOG_TITLE, "The socket has sent {} bytes long packet.".format(len(client_data)))
-
-                    if cls._pass_data_as_string: client_data = client_data.decode(WebsocketServer.ENCODING_TYPE)
-
-                    if cls._special_handler_list["client_data"] is not None:
-                        cls._print_log(LOG_TITLE, "Calling \"client_data\" special handler for the socket.")
-                        cls._special_handler_list["client_data"](cls, client, client_data)
                 except ValueError as ex:
                     if str(ex) != "Closing connection":
                         cls._print_log(LOG_TITLE, "The socket has sent an inappropriate packet. Closing connection. ({})".format(str(ex)))
@@ -135,6 +128,14 @@ class WebsocketServer:
                     
                     cls._close_client_socket(socket_id)
                     break
+
+                cls._print_log(LOG_TITLE, "The socket has sent {} bytes long packet.".format(len(client_data)))
+
+                if cls._pass_data_as_string: client_data = client_data.decode(WebsocketServer.ENCODING_TYPE)
+
+                if cls._special_handler_list["client_data"] is not None:
+                    cls._print_log(LOG_TITLE, "Calling \"client_data\" special handler for the socket.")
+                    cls._special_handler_list["client_data"](cls, client, client_data)
 
         cls._print_log(LOG_TITLE, "The socket's thread has been terminated.")
         cls._client_thread_list.pop(socket_id)
