@@ -4,7 +4,7 @@ Simple websocket server library written in Python.
 Example Server Code: <br>
 <b>main.py</b>
 ```python
-from pywebsocket import WebsocketServer, WebsocketClient
+from pywebsocket.server import WebsocketServer, WebsocketClient
 
 def on_client_connect(server : WebsocketServer, 
                       client : WebsocketClient) -> None:
