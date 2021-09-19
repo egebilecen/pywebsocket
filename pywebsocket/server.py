@@ -126,7 +126,8 @@ class WebsocketServer:
                 break
             else:
                 try:
-                    client_data = WebsocketServer._decode_packet(data)
+                    decoded_packet = WebsocketServer._decode_packet(data)
+                    client_data    = decoded_packet["data"]
                 except exceptions.CLOSE_CONNECTION:
                     cls._print_log(LOG_TITLE, "The socket has left from server. (Sent close connection)")
                     break
@@ -140,7 +141,14 @@ class WebsocketServer:
                     cls._print_log(LOG_TITLE, "The socket has left from server. (UNKNOWN EXCEPTION: {})".format(str(ex)))
                     break
 
-                cls._print_log(LOG_TITLE, "The socket has sent {} bytes long packet.".format(len(client_data)))
+                if decoded_packet["OPCODE"] == custom_types.ControlFrame.PING_FRAME:
+                    cls._print_log(LOG_TITLE, "The socket has sent ping frame. Sending pong frame in response.")
+                    client_socket.send(WebsocketServer._encode_data(client_data, custom_types.ControlFrame.PONG_FRAME))
+                    continue
+
+                if client_data == b"": continue
+
+                cls._print_log(LOG_TITLE, "The socket has sent {} bytes long data.".format(len(client_data)))
 
                 if cls._pass_data_as_string: client_data = client_data.decode(WebsocketServer.ENCODING_TYPE)
 
@@ -232,13 +240,12 @@ class WebsocketServer:
 
     ## Encodes the data that will be sent to client according to websocket packet structure and rules.
     # @param data Data that will be sent to client.
-    # @param frame_type Type of frame. It can only be FrameType.TEXT_FRAME or FrameType.BINARY_FRAME. If data sent as a FrameType.TEXT_FRAME, client will receive data as UTF-8 string. If data sent as a FrameType.BINARY_FRAME, client will receive data as byte array.
-    # @param opcode_ovr OPCODE override. OPCODE will be set to this value if value is not None.
+    # @param opcode OPCODE of frame.
+    # @note If OPCODE set to FrameType.TEXT_FRAME, client will receive data as UTF-8 string. If OPCODE set to FrameType.BINARY_FRAME, client will receive data as byte array.
     # @warning Raises exceptions.DATA_LENGTH_ERROR exception if data's length is bigger than 0xFFFFFFFFFFFFFFFF.
     @staticmethod
-    def _encode_data(data       : bytes, 
-                     frame_type : custom_types.FrameType = custom_types.FrameType.TEXT_FRAME,
-                     opcode_ovr : Optional[int]          = None) -> bytes:
+    def _encode_data(data   : bytes, 
+                     opcode : int) -> bytes:
         packet   = bytearray()
         data_len = len(data)
 
@@ -246,12 +253,9 @@ class WebsocketServer:
         RSV1   = 0b00000000
         RSV2   = 0b00000000
         RSV3   = 0b00000000
-        OPCODE = frame_type
+        OPCODE = opcode
         EXT_16 = 0x7E
         EXT_64 = 0x7F
-
-        if opcode_ovr is not None: 
-            OPCODE = opcode_ovr
 
         HEADER = FIN | RSV1 | RSV2 | RSV3 | OPCODE
 
@@ -272,7 +276,7 @@ class WebsocketServer:
 
         return bytes(packet)
     
-    ## Extracts the data from the packet sent from client.
+    ## Decodes the packet sent from client.
     # @param packet Packet sent from client.
     # @warning Raises exceptions.UNKNOWN_OPCODE exception if an unknown OPCODE is detected. Raises exceptions.CLOSE_CONNECTION exception if close connection OPCODE is detected. Raises exceptions.MASK_ERROR exception if unmasked frame is detected.
     @staticmethod
@@ -314,7 +318,11 @@ class WebsocketServer:
         for i, byte in enumerate(payload):
             payload_data.append(byte ^ MASK_KEY[i % 4])
 
-        return bytes(payload_data)
+        return {
+            "FIN"    : FIN,
+            "OPCODE" : OPCODE,
+            "data"   : bytes(payload_data)
+        }
     
     ## prints log to console if debug is enabled.
     # @param title Title.
@@ -345,7 +353,7 @@ class WebsocketServer:
         client        = self._client_socket_list[socket_id]
         client_socket = client.get_socket()
 
-        client_socket.send(WebsocketServer._encode_data(struct.pack("!H", status_code), opcode_ovr = custom_types.ControlFrame.CLOSE_FRAME))
+        client_socket.send(WebsocketServer._encode_data(struct.pack("!H", status_code), custom_types.ControlFrame.CLOSE_FRAME))
         
         client_socket.close()
         self._client_socket_list.pop(socket_id)
