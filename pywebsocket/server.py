@@ -272,7 +272,7 @@ class WebsocketServer:
 
         return bytes(packet)
     
-    ## Decodes the packet sent from client.
+    ## Extracts the data from the packet sent from client.
     # @param packet Packet sent from client.
     # @warning Raises exceptions.UNKNOWN_OPCODE exception if an unknown OPCODE is detected. Raises exceptions.CLOSE_CONNECTION exception if close connection OPCODE is detected. Raises exceptions.MASK_ERROR exception if unmasked frame is detected.
     @staticmethod
