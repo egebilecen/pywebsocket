@@ -52,6 +52,19 @@ server.set_special_handler("client_data",       on_client_data)
 server.start()
 ```
 
+# Installation
+Install via `pip`:
+
+```
+pip install pywebsocket
+```
+
+Or you can install manually by cloning this repo and running this command:
+
+```
+python3 setup.py install
+```
+
 # Documentation
 Please refer to [here](https://egebilecen.github.io/pywebsocket/namespaces.html) for documentation.
 
