@@ -18,6 +18,10 @@ class DATA_LENGTH_ERROR(Exception):
 class UNKNOWN_OPCODE(Exception):
     pass
 
+## Raised when an invalid OPCODE detected.
+class INVALID_OPCODE(Exception):
+    pass
+
 ## Raised when closing OPCODE detected.
 class CLOSE_CONNECTION(Exception):
     pass

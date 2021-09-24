@@ -37,6 +37,12 @@ class WebsocketClient:
         ## Address tuple of client
         self._addr   = addr
 
+        ## Is sending fragmented message?
+        self._is_sending_fragmented_message = False
+
+        ## Buffer for fragmented message
+        self._fragmented_message_buffer     = bytearray()
+
         ## Dictionary object to hold data in client.
         self.data    = {}
 
@@ -51,6 +57,14 @@ class WebsocketClient:
     ## Gets the address pair of client.
     def get_addr(self) -> tuple:
         return self._addr
+
+    ## Get is client sending fragmented message.
+    def get_is_sending_fragmented_message(self) -> bool:
+        return self._is_sending_fragmented_message
+
+    ## Get fragmented message.
+    def get_fragmented_message(self) -> bytes:
+        return bytes(self._fragmented_message_buffer)
 
 ## WebsocketServer
 # Simple Websocket Server.
@@ -146,6 +160,27 @@ class WebsocketServer:
                     client_socket.send(WebsocketServer._encode_data(client_data, custom_types.ControlFrame.PONG_FRAME))
                     continue
 
+                # check if it is fragmented message
+                if  decoded_packet["FIN"]    == 0x00 \
+                and decoded_packet["OPCODE"] != custom_types.FrameType.CONTINUATION_FRAME:
+                    client._is_sending_fragmented_message = True
+                    client._fragmented_message_buffer.extend(client_data)
+                    cls._print_log(LOG_TITLE, "The socket has initiated a fragmented message.")
+                    continue
+                elif decoded_packet["FIN"]    == 0x00 \
+                and  decoded_packet["OPCODE"] == custom_types.FrameType.CONTINUATION_FRAME \
+                and  client.get_is_sending_fragmented_message():
+                    client._fragmented_message_buffer.extend(client_data)
+                    cls._print_log(LOG_TITLE, "The socket has sent another fragmented message.")
+                elif decoded_packet["FIN"]    == 0x01 \
+                and  decoded_packet["OPCODE"] == custom_types.FrameType.CONTINUATION_FRAME \
+                and  client.get_is_sending_fragmented_message():
+                    client._is_sending_fragmented_message = False
+                    client._fragmented_message_buffer.extend(client_data)
+                    cls._print_log(LOG_TITLE, "The socket has completed the fragmented message.")
+
+                    client_data = client.get_fragmented_message()
+
                 if client_data == b"": continue
 
                 cls._print_log(LOG_TITLE, "The socket has sent {} bytes long data.".format(len(client_data)))
@@ -165,7 +200,7 @@ class WebsocketServer:
     def _create_handshake(http_request : bytes) -> bytes:
         http_data = WebsocketServer._parse_http_request(http_request.decode(WebsocketServer.ENCODING_TYPE))
 
-        # ----| HTTP Request Validity Checks |----
+        # HTTP Request Validity Checks
         # (https://datatracker.ietf.org/doc/html/rfc6455#section-4.1)
         # HTTP request must be GET request
         if http_data["Method"] != "GET":                       raise exceptions.HANDSHAKE.INVALID_METHOD("HTTP request must be GET request. Received {} request.".format(http_data["Method"]))
@@ -476,6 +511,9 @@ class WebsocketServer:
                   socket_id  : int,
                   data       : bytes,
                   frame_type : custom_types.FrameType = custom_types.FrameType.BINARY_FRAME) -> None:
+        if frame_type == custom_types.FrameType.CONTINUATION_FRAME:
+            raise exceptions.INVALID_OPCODE("OPCODE cannot be continuation frame.")
+        
         self._check_socket_id(socket_id)
 
         socket = self._client_socket_list[socket_id].get_socket()
