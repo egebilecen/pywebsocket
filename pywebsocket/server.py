@@ -82,22 +82,25 @@ class WebsocketServer:
     # @param port Port number that will be used for communication.
     # @param client_buffer_size Buffer size for the data sent from client.
     # @param pass_data_as_string Data sent from client will be passed as UTF-8 string to "client_data" special handler's data param if set to True. Otherwise a byte array will be passed.
+    # @param daemon_handshake_handler Determine whether client handshake handler thread to be daemon or not.
     # @param debug Enable/disable debug messages.
     def __init__(self,
-                 ip                  : str  = "",
-                 port                : int  = 3630,
-                 client_buffer_size  : int  = 2048,
-                 pass_data_as_string : bool = False,
-                 debug               : bool = False) -> None:
+                 ip                       : str  = "",
+                 port                     : int  = 3630,
+                 client_buffer_size       : int  = 2048,
+                 pass_data_as_string      : bool = False,
+                 daemon_handshake_handler : bool = False,
+                 debug                    : bool = False) -> None:
         # Server Variables
-        self._server              = None
-        self._ip                  = ip
-        self._port                = port
-        self._addr                = (self._ip, self._port)
-        self._thread_list         = {}
-        self._is_running          = False
-        self._pass_data_as_string = pass_data_as_string
-        self._debug               = debug
+        self._server                   = None
+        self._ip                       = ip
+        self._port                     = port
+        self._addr                     = (self._ip, self._port)
+        self._thread_list              = {}
+        self._is_running               = False
+        self._pass_data_as_string      = pass_data_as_string
+        self._daemon_handshake_handler = daemon_handshake_handler
+        self._debug                    = debug
 
         # Client Variables
         self._client_socket_list = {}
@@ -501,7 +504,7 @@ class WebsocketServer:
             "thread" : handshake_thread
         }
 
-        handshake_thread.daemon = False
+        handshake_thread.daemon = self._daemon_handshake_handler
         handshake_thread.start()
 
     ## Sends the data to socket.
