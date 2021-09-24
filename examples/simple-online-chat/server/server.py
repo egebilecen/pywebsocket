@@ -1,4 +1,4 @@
-from pywebsocket.pywebsocket.server import WebsocketServer
+from pywebsocket.server import WebsocketServer
 from random import random
 from urllib.parse import unquote
 import json

@@ -1,3 +1,0 @@
-[submodule "examples/simple-online-chat/server/pywebsocket"]
-	path = examples/simple-online-chat/server/pywebsocket
-	url = https://github.com/egebilecen/pywebsocket.git
