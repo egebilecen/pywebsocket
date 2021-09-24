@@ -9,6 +9,7 @@ var dir_a923b1e1d6ca0ca94587fac6b4525991 =
       [ "exceptions.INVALID_SEND_METHOD", "classexceptions_1_1_i_n_v_a_l_i_d___s_e_n_d___m_e_t_h_o_d.html", null ],
       [ "exceptions.DATA_LENGTH_ERROR", "classexceptions_1_1_d_a_t_a___l_e_n_g_t_h___e_r_r_o_r.html", null ],
       [ "exceptions.UNKNOWN_OPCODE", "classexceptions_1_1_u_n_k_n_o_w_n___o_p_c_o_d_e.html", null ],
+      [ "exceptions.INVALID_OPCODE", "classexceptions_1_1_i_n_v_a_l_i_d___o_p_c_o_d_e.html", null ],
       [ "exceptions.CLOSE_CONNECTION", "classexceptions_1_1_c_l_o_s_e___c_o_n_n_e_c_t_i_o_n.html", null ],
       [ "exceptions.MASK_ERROR", "classexceptions_1_1_m_a_s_k___e_r_r_o_r.html", null ],
       [ "exceptions.INVALID_SOCKET_ID", "classexceptions_1_1_i_n_v_a_l_i_d___s_o_c_k_e_t___i_d.html", null ],

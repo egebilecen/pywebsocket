@@ -108,6 +108,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae3cad4daa6816c47a981ec3056cb616b"><td class="memItemLeft" align="right" valign="top">tuple&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_client.html#ae3cad4daa6816c47a981ec3056cb616b">get_addr</a> (self)</td></tr>
 <tr class="memdesc:ae3cad4daa6816c47a981ec3056cb616b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the address pair of client.  <a href="classserver_1_1_websocket_client.html#ae3cad4daa6816c47a981ec3056cb616b">More...</a><br /></td></tr>
 <tr class="separator:ae3cad4daa6816c47a981ec3056cb616b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d21b26b43a9cda734fecc106f506e1f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_client.html#a9d21b26b43a9cda734fecc106f506e1f">get_is_sending_fragmented_message</a> (self)</td></tr>
+<tr class="memdesc:a9d21b26b43a9cda734fecc106f506e1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get is client sending fragmented message.  <a href="classserver_1_1_websocket_client.html#a9d21b26b43a9cda734fecc106f506e1f">More...</a><br /></td></tr>
+<tr class="separator:a9d21b26b43a9cda734fecc106f506e1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56890d1572d9acf969a52eb6a16353e8"><td class="memItemLeft" align="right" valign="top">bytes&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_client.html#a56890d1572d9acf969a52eb6a16353e8">get_fragmented_message</a> (self)</td></tr>
+<tr class="memdesc:a56890d1572d9acf969a52eb6a16353e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get fragmented message.  <a href="classserver_1_1_websocket_client.html#a56890d1572d9acf969a52eb6a16353e8">More...</a><br /></td></tr>
+<tr class="separator:a56890d1572d9acf969a52eb6a16353e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -126,6 +132,12 @@ Private Attributes</h2></td></tr>
 <tr class="memitem:ad69c978724baf44c410819ae5bda0cd1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_client.html#ad69c978724baf44c410819ae5bda0cd1">_addr</a></td></tr>
 <tr class="memdesc:ad69c978724baf44c410819ae5bda0cd1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address tuple of client.  <a href="classserver_1_1_websocket_client.html#ad69c978724baf44c410819ae5bda0cd1">More...</a><br /></td></tr>
 <tr class="separator:ad69c978724baf44c410819ae5bda0cd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd0526c3e26a99dba1f11f14f4800d2a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_client.html#acd0526c3e26a99dba1f11f14f4800d2a">_is_sending_fragmented_message</a></td></tr>
+<tr class="memdesc:acd0526c3e26a99dba1f11f14f4800d2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Is sending fragmented message?  <a href="classserver_1_1_websocket_client.html#acd0526c3e26a99dba1f11f14f4800d2a">More...</a><br /></td></tr>
+<tr class="separator:acd0526c3e26a99dba1f11f14f4800d2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a54c779560334d93d9a18ec16fc1d12e3"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classserver_1_1_websocket_client.html#a54c779560334d93d9a18ec16fc1d12e3">_fragmented_message_buffer</a></td></tr>
+<tr class="memdesc:a54c779560334d93d9a18ec16fc1d12e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Buffer for fragmented message.  <a href="classserver_1_1_websocket_client.html#a54c779560334d93d9a18ec16fc1d12e3">More...</a><br /></td></tr>
+<tr class="separator:a54c779560334d93d9a18ec16fc1d12e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p ><a class="el" href="classserver_1_1_websocket_client.html" title="WebsocketClient Contains the variables for a client that connected to the server.">WebsocketClient</a> Contains the variables for a client that connected to the server. </p>
@@ -191,6 +203,26 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a56890d1572d9acf969a52eb6a16353e8" name="a56890d1572d9acf969a52eb6a16353e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56890d1572d9acf969a52eb6a16353e8">&#9670;&nbsp;</a></span>get_fragmented_message()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"> bytes server.WebsocketClient.get_fragmented_message </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get fragmented message. </p>
+
+</div>
+</div>
 <a id="a6ee34d253bc9692f80ed19b141bfb72d" name="a6ee34d253bc9692f80ed19b141bfb72d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6ee34d253bc9692f80ed19b141bfb72d">&#9670;&nbsp;</a></span>get_id()</h2>
 
@@ -208,6 +240,26 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Gets the socket ID of client. </p>
+
+</div>
+</div>
+<a id="a9d21b26b43a9cda734fecc106f506e1f" name="a9d21b26b43a9cda734fecc106f506e1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d21b26b43a9cda734fecc106f506e1f">&#9670;&nbsp;</a></span>get_is_sending_fragmented_message()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"> bool server.WebsocketClient.get_is_sending_fragmented_message </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>self</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get is client sending fragmented message. </p>
 
 </div>
 </div>
@@ -256,6 +308,30 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a54c779560334d93d9a18ec16fc1d12e3" name="a54c779560334d93d9a18ec16fc1d12e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a54c779560334d93d9a18ec16fc1d12e3">&#9670;&nbsp;</a></span>_fragmented_message_buffer</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">server.WebsocketClient._fragmented_message_buffer</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Buffer for fragmented message. </p>
+
+</div>
+</div>
 <a id="a06e88abb407873e24b0b886cc53f54ce" name="a06e88abb407873e24b0b886cc53f54ce"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a06e88abb407873e24b0b886cc53f54ce">&#9670;&nbsp;</a></span>_id</h2>
 
@@ -277,6 +353,30 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Socket ID of client. </p>
+
+</div>
+</div>
+<a id="acd0526c3e26a99dba1f11f14f4800d2a" name="acd0526c3e26a99dba1f11f14f4800d2a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd0526c3e26a99dba1f11f14f4800d2a">&#9670;&nbsp;</a></span>_is_sending_fragmented_message</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">server.WebsocketClient._is_sending_fragmented_message</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Is sending fragmented message? </p>
 
 </div>
 </div>

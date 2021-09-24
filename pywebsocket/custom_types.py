@@ -5,8 +5,9 @@
 ## FrameType
 # Contains the constants that specifies the frame type. Can be used as OPCODE.
 class FrameType:
-    TEXT_FRAME   = 0x01
-    BINARY_FRAME = 0x02
+    CONTINUATION_FRAME = 0x00
+    TEXT_FRAME         = 0x01
+    BINARY_FRAME       = 0x02
 
 ## ControlFrame
 # Contains the constants that specifies the control frames. Can be used as OPCODE.

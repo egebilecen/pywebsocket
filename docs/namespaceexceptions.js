@@ -10,6 +10,7 @@ var namespaceexceptions =
       [ "WEBSOCKET_VERSION_ERROR", "classexceptions_1_1_h_a_n_d_s_h_a_k_e_1_1_w_e_b_s_o_c_k_e_t___v_e_r_s_i_o_n___e_r_r_o_r.html", null ]
     ] ],
     [ "INVALID_METHOD", "classexceptions_1_1_i_n_v_a_l_i_d___m_e_t_h_o_d.html", null ],
+    [ "INVALID_OPCODE", "classexceptions_1_1_i_n_v_a_l_i_d___o_p_c_o_d_e.html", null ],
     [ "INVALID_SEND_METHOD", "classexceptions_1_1_i_n_v_a_l_i_d___s_e_n_d___m_e_t_h_o_d.html", null ],
     [ "INVALID_SOCKET_ID", "classexceptions_1_1_i_n_v_a_l_i_d___s_o_c_k_e_t___i_d.html", null ],
     [ "MASK_ERROR", "classexceptions_1_1_m_a_s_k___e_r_r_o_r.html", null ],

@@ -10,6 +10,7 @@ var hierarchy =
       [ "exceptions.HANDSHAKE.REQUIRED_FIELD_MISSING", "classexceptions_1_1_h_a_n_d_s_h_a_k_e_1_1_r_e_q_u_i_r_e_d___f_i_e_l_d___m_i_s_s_i_n_g.html", null ],
       [ "exceptions.HANDSHAKE.WEBSOCKET_VERSION_ERROR", "classexceptions_1_1_h_a_n_d_s_h_a_k_e_1_1_w_e_b_s_o_c_k_e_t___v_e_r_s_i_o_n___e_r_r_o_r.html", null ],
       [ "exceptions.INVALID_METHOD", "classexceptions_1_1_i_n_v_a_l_i_d___m_e_t_h_o_d.html", null ],
+      [ "exceptions.INVALID_OPCODE", "classexceptions_1_1_i_n_v_a_l_i_d___o_p_c_o_d_e.html", null ],
       [ "exceptions.INVALID_SEND_METHOD", "classexceptions_1_1_i_n_v_a_l_i_d___s_e_n_d___m_e_t_h_o_d.html", null ],
       [ "exceptions.INVALID_SOCKET_ID", "classexceptions_1_1_i_n_v_a_l_i_d___s_o_c_k_e_t___i_d.html", null ],
       [ "exceptions.MASK_ERROR", "classexceptions_1_1_m_a_s_k___e_r_r_o_r.html", null ],
