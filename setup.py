@@ -9,7 +9,7 @@ with open(path.join(CURRENT_DIR, "README.md"), encoding="utf-8") as f:
 
 setup(
     name                          = "pywebsocket",
-    version                       = "1.0.5",
+    version                       = "1.0.6",
     author                        = "Ege Bilecen",
     description                   = "Websocket server written in Python.",
     long_description              = "Please see GitHub page for more information. (https://github.com/egebilecen/pywebsocket)",
