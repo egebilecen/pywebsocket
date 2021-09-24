@@ -7,8 +7,7 @@
     * client_data
 """
 
-from types import FrameType
-from typing import Callable, Union, Optional
+from typing import Callable, Union
 from random import randint
 from sys    import maxsize as MAX_UINT_VALUE
 import socket
