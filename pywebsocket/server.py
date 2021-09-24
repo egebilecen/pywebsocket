@@ -172,6 +172,7 @@ class WebsocketServer:
                 and  client.get_is_sending_fragmented_message():
                     client._fragmented_message_buffer.extend(client_data)
                     cls._print_log(LOG_TITLE, "The socket has sent another fragmented message.")
+                    continue
                 elif decoded_packet["FIN"]    == 0x01 \
                 and  decoded_packet["OPCODE"] == custom_types.FrameType.CONTINUATION_FRAME \
                 and  client.get_is_sending_fragmented_message():
