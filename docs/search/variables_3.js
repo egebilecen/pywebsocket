@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['data_0',['data',['../classserver_1_1_websocket_client.html#a8c011e0dcca31eb98f3fcf8ed6db5e37',1,'server::WebsocketClient']]]
+  ['data_0',['data',['../classpywebsocket_1_1server_1_1_websocket_client.html#a2b3dae87bf9304e2c6bd5a9e874a868e',1,'pywebsocket::server::WebsocketClient']]]
 ];

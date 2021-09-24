@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['websocket_5fversion_0',['WEBSOCKET_VERSION',['../classserver_1_1_websocket_server.html#a5f22a859736c24c427c222488a90e158',1,'server::WebsocketServer']]]
+  ['websocket_5fversion_0',['WEBSOCKET_VERSION',['../classpywebsocket_1_1server_1_1_websocket_server.html#a900be90b5a3f5b454ceffa1e3e71e1df',1,'pywebsocket::server::WebsocketServer']]]
 ];

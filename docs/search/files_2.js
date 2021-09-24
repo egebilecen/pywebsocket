@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['server_2epy_0',['server.py',['../server_8py.html',1,'']]]
+  ['exceptions_2epy_0',['exceptions.py',['../exceptions_8py.html',1,'']]]
 ];
