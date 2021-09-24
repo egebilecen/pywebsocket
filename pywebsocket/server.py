@@ -164,7 +164,6 @@ class WebsocketServer:
                 if  decoded_packet["FIN"]    == 0x00 \
                 and decoded_packet["OPCODE"] != custom_types.FrameType.CONTINUATION_FRAME:
                     client._is_sending_fragmented_message = True
-                    client._fragmented_message_buffer     = bytearray() # clear the buffer
                     client._fragmented_message_buffer.extend(client_data)
                     cls._print_log(LOG_TITLE, "The socket has initiated a fragmented message.")
                     continue
@@ -182,6 +181,7 @@ class WebsocketServer:
                     cls._print_log(LOG_TITLE, "The socket has completed the fragmented message.")
 
                     client_data = client.get_fragmented_message()
+                    client._fragmented_message_buffer = bytearray() # clear the buffer
 
                 if client_data == b"": continue
 
