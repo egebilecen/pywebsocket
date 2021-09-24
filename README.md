@@ -1,8 +1,8 @@
 # pywebsocket
 Simple websocket server library written in Python.
-<br><br>
+
 Example Server Code: <br>
-<b>main.py</b>
+**main.py**
 ```python
 from pywebsocket.server import WebsocketServer, WebsocketClient
 
@@ -53,9 +53,10 @@ server.start()
 ```
 
 # Documentation
-Please refer to <a href="https://egebilecen.github.io/pywebsocket/namespaces.html">here</a> for documentation.
-<hr>
+Please refer to [here](https://egebilecen.github.io/pywebsocket/namespaces.html) for documentation.
 
-<b>Notes:</b>
-* Doesn't support <b>HTTPS</b> connection.
+---
+
+**Notes:**
+* Doesn't support **HTTPS** connection.
 * Server does support receiving fragmented messages but it doesn't support sending fragmented messages.
