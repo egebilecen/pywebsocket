@@ -30,9 +30,13 @@ def on_client_data(server : WebsocketServer,
     server.send_string(client.get_id(), data)
 
 server = WebsocketServer("192.168.1.2", 3630,
-                         client_buffer_size  = 1024,
-                         pass_data_as_string = True,
-                         debug               = True)
+                         client_buffer_size       = 1024,
+                         pass_data_as_string      = True,
+                         daemon_handshake_handler = False, # if set to True, main process 
+                                                           # will exit immediately. Be sure to
+                                                           # create an endless loop after
+                                                           # server.start() has been called.
+                         debug                    = True)
 
 # You can set your own variables to server like below:
 server.channel_list = {
