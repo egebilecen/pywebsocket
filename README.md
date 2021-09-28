@@ -4,9 +4,9 @@ Simple websocket server library written in Python.
 Example Server Code: <br>
 **main.py**
 
+```python
 from pywebsocket.server import WebsocketServer, WebsocketClient
 
-```python
 def on_client_connect(server : WebsocketServer, 
                       client : WebsocketClient) -> None:
     # Add this client's socket id to a channel's user list.
